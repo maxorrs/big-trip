@@ -1,11 +1,12 @@
-import {nameMounth} from '../util.js';
+import {nameMonth} from '../util.js';
+import {createElement} from '../util.js';
 
-export const createOneDayTemplate = (index, date) => {
+const createOneDayTemplate = (index, date) => {
   const fullDate = new Date(date);
 
   const getNameDate = () => {
     const makingDate = new Date(fullDate).toISOString().substr(5, 5).split(`-`);
-    const mounth = nameMounth[+makingDate[0]];
+    const mounth = nameMonth[+makingDate[0]];
     const phrase = `${makingDate[1]} ${mounth}`;
 
     return phrase;
@@ -24,3 +25,27 @@ export const createOneDayTemplate = (index, date) => {
   </li>`
   );
 };
+
+export default class OneDay {
+  constructor(index, date) {
+    this._element = null;
+    this._index = index;
+    this._date = date;
+  }
+
+  getTemplate() {
+    return createOneDayTemplate(this._index, this._date);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

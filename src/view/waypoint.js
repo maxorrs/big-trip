@@ -1,4 +1,5 @@
 import {COUNT_OFFERS} from '../consts.js';
+import {createElement} from '../util.js';
 
 const getTime = (time) => {
   const val = new Date(time);
@@ -38,7 +39,7 @@ const getTimeRange = (timeObj) => {
   return result;
 };
 
-export const createWaypointTemplate = (waypoint) => {
+const createWaypointTemplate = (waypoint) => {
   const startTime = getTime(waypoint.time.startTime);
   const endTime = getTime(waypoint.time.endTime);
 
@@ -105,3 +106,26 @@ export const createWaypointTemplate = (waypoint) => {
   </li>`
   );
 };
+
+export default class Waypoint {
+  constructor(waypoint) {
+    this._element = null;
+    this._waypoint = waypoint;
+  }
+
+  getTemplate() {
+    return createWaypointTemplate(this._waypoint);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

@@ -1,3 +1,5 @@
+import {createElement} from '../util.js';
+
 const createPhoto = (photos) => {
   let result = ``;
 
@@ -59,9 +61,10 @@ const setOffers = (item) => {
   return offersChecked;
 };
 
-export const createEventTemplate = (uniqueCitiesDatalist, waypoint) => {
+const createEventTemplate = (uniqueCitiesDatalist, waypoint) => {
   const city = waypoint.city;
-  const {description, photos} = waypoint.destination;
+  const photos = waypoint.destination.photos;
+  const description = waypoint.destination.description ? waypoint.destination.description : ``;
   const photo = createPhoto(photos);
   const {startTime, endTime} = waypoint.time;
   const startTimeValue = remakeDate(startTime);
@@ -244,3 +247,27 @@ export const createEventTemplate = (uniqueCitiesDatalist, waypoint) => {
   </form>`
   );
 };
+
+export default class Event {
+  constructor(uniqueCitiesDatalist, waypoint) {
+    this._element = null;
+    this._uniqueCitiesDatalist = uniqueCitiesDatalist;
+    this._waypoint = waypoint;
+  }
+
+  getTemplate() {
+    return createEventTemplate(this._uniqueCitiesDatalist, this._waypoint);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
