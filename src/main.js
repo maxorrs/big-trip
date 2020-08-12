@@ -1,16 +1,17 @@
 'use strict';
 
-import {createTripInfoTemplate} from './view/trip-info.js';
-import {createTripTabsTemplate} from './view/trip-tabs.js';
-import {createTripFiltersTemplate} from './view/trip-filters.js';
-import {createTripSortTemplate} from './view/trip-sort.js';
-import {createEventTemplate} from './view/event.js';
-import {createDaysContainerTemplate} from './view/days.js';
-import {createOneDayTemplate} from './view/one-day.js';
-import {createWaypointTemplate} from './view/waypoint.js';
+import TripInfoView from './view/trip-info.js';
+import TripTabsView from './view/trip-tabs.js';
+import TripFiltersView from './view/trip-filters.js';
+import TripSortView from './view/trip-sort.js';
+import EventView from './view/event.js';
+import DaysView from './view/days.js';
+import OneDayView from './view/one-day.js';
+import NoWaypointsView from './view/no-waypoints.js';
+import WaypointView from './view/waypoint.js';
 import {generateWaypoint} from './mock/waypoint.js';
 import {COUNT_WAYPOINTS} from './consts.js';
-import {getRandomInteger} from './util.js';
+import {RenderPosition, render} from './util.js';
 
 const MAX_COUNT_CITY_INFO = 3;
 const THREE_HOURS_IN_MS = 10800000;
@@ -26,18 +27,18 @@ const waypoints = new Array(COUNT_WAYPOINTS)
       return 1;
     } else if (firstDate < secondDate) {
       return -1;
-    } else {
-      return 0;
-    }
+    } 
+
+    return 0;
   });
 
-const uniqueDate = waypoints
+const uniqueDates = waypoints
   .slice()
   .map((waypoint) => {
     return waypoint.time.startTime.substr(0,10); 
   });
 
-const uniqueDateSet = new Set (uniqueDate);
+const uniqueDatesSet = new Set (uniqueDates);
 
 const cities = waypoints
   .slice()
@@ -47,7 +48,7 @@ const cities = waypoints
       startTime: waypoint.time.startTime
     }
   })
-  .sort ((a, b) => {
+  .sort((a, b) => {
     const firstDate = new Date(a.startTime).getTime();
     const secondDate = new Date(b.startTime).getTime();
     
@@ -55,9 +56,9 @@ const cities = waypoints
       return 1;
     } else if (firstDate < secondDate) {
       return -1;
-    } else {
-      return 0;
-    }
+    } 
+
+    return 0;
   });
 
 const citiesDatalist = cities
@@ -105,47 +106,77 @@ for (const waypoint of waypoints) {
   getFinalAmount(waypoint)
 }
 
-const render = (container, place, template) => {
-  container.insertAdjacentHTML(place, template);
-};
-
 const pageBody = document.querySelector(`.page-body`);
 const header = pageBody.querySelector(`.page-header`);
 const tripMainContainer = header.querySelector(`.trip-main`);
 const tripControls = tripMainContainer.querySelector(`.trip-controls`);
 const firstTitleTripControls = tripControls.querySelector(`h2`);
 
-render(tripMainContainer, `afterBegin`, createTripInfoTemplate(uniqueDateSet, citiesForInfo, finalAmount));
-render(firstTitleTripControls, `afterEnd`, createTripTabsTemplate());
-render(tripControls, `beforeEnd`, createTripFiltersTemplate());
+render(tripMainContainer, RenderPosition.AFTERBEGIN, new TripInfoView (uniqueDatesSet, citiesForInfo, finalAmount).getElement());
+render(firstTitleTripControls, RenderPosition.AFTEREND, new TripTabsView ().getElement());
+render(tripControls, RenderPosition.BEFOREEND, new TripFiltersView ().getElement());
 
 const main = pageBody.querySelector(`.page-main`);
 const tripEventsContainer = main.querySelector(`.trip-events`);
 
-render(tripEventsContainer, `beforeEnd`, createTripSortTemplate());
+render(tripEventsContainer, RenderPosition.BEFOREEND, new TripSortView ().getElement());
 
-const indexEvent = getRandomInteger(0, waypoints.length - 1);
-render(tripEventsContainer, `beforeEnd`, createEventTemplate(uniqueCitiesDatalist, waypoints[indexEvent]));
+const daysContainer = new DaysView ().getElement();
 
-render(tripEventsContainer, `beforeEnd`, createDaysContainerTemplate());
+render(tripEventsContainer, RenderPosition.BEFOREEND, daysContainer);
 
-const daysContainer = tripEventsContainer.querySelector(`.trip-days`);
 
 if (daysContainer) {
   let i = 1;
-  for (let value of uniqueDateSet) {
-    render(daysContainer, `beforeEnd`, createOneDayTemplate(i++, value));
+  for (let value of uniqueDatesSet) {
+    render(daysContainer, RenderPosition.BEFOREEND, new OneDayView (i++, value).getElement());
   }
 }
 
 const addWaypoint = (waypoint) => {
+  const waypointEdit = new EventView (uniqueCitiesDatalist, waypoint);
+  const waypointComponent = new WaypointView (waypoint);
+
   const startTime = new Date (waypoint.time.startTime).getTime() + THREE_HOURS_IN_MS;
   const time = new Date (startTime).toISOString().substr(0,10);
   
   const selector = daysContainer.querySelector(`[data-start-date="${time}"] > .trip-events__list`);
-  
+
+  const replaceFormToCard = () => {
+    selector.replaceChild(waypointEdit.getElement(), waypointComponent.getElement());
+  };
+
+  const replaceCardToForm = () => {
+    selector.replaceChild(waypointComponent.getElement(), waypointEdit.getElement());
+  };
+
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      replaceCardToForm();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
+  waypointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replaceFormToCard();
+    document.addEventListener(`keydown`, onEscKeyDown);
+  });
+
+  waypointEdit.getElement().addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    replaceCardToForm();
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+
+  waypointEdit.getElement().addEventListener(`reset`, (evt) => {
+    evt.preventDefault();
+    replaceCardToForm();
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+
   if (selector) {
-    render(selector, `beforeEnd`, createWaypointTemplate(waypoint));
+    render(selector, RenderPosition.BEFOREEND, waypointComponent.getElement());
   }
 };
 

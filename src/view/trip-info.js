@@ -1,4 +1,5 @@
-import {nameMounth} from '../util.js';
+import {nameMonth} from '../util.js';
+import {createElement} from '../util.js';
 
 const getMinAndMaxDate = (dates) => {
   let datesArr = [];
@@ -6,11 +7,11 @@ const getMinAndMaxDate = (dates) => {
     datesArr.push(new Date(date).getTime());
   }
   const min = new Date(Math.min(...datesArr)).toISOString();
-  const minMounth = nameMounth[+min.substr(5, 2)];
+  const minMounth = nameMonth[+min.substr(5, 2)];
   const minDate = min.substr(8, 2);
 
   const max = new Date(Math.max(...datesArr)).toISOString();
-  const maxMounth = nameMounth[+max.substr(5, 2)];
+  const maxMounth = nameMonth[+max.substr(5, 2)];
   const maxDate = max.substr(8, 2);
 
   if (minMounth === maxMounth) {
@@ -29,7 +30,7 @@ const getRoute = (cities) => {
   return result.slice(0, -9);
 };
 
-export const createTripInfoTemplate = (dates, cities, amount) => {
+const createTripInfoTemplate = (dates, cities, amount) => {
   const date = getMinAndMaxDate(dates);
   const citiesInfo = getRoute(cities);
   const finalAmount = amount;
@@ -48,3 +49,28 @@ export const createTripInfoTemplate = (dates, cities, amount) => {
   </section>`
   );
 };
+
+export default class TripInfo {
+  constructor(dates, cities, amount) {
+    this._element = null;
+    this._dates = dates;
+    this._cities = cities;
+    this._amount = amount;
+  }
+
+  getTemplate() {
+    return createTripInfoTemplate(this._dates, this._cities, this._amount);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

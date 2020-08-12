@@ -1,21 +1,18 @@
 import {createElement} from '../util.js';
 
-const createTripTabsTemplate = () => {
+const createNoWaypointsTemplate = () => {
   return (
-    `<nav class="trip-controls__trip-tabs  trip-tabs">
-    <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
-    <a class="trip-tabs__btn" href="#">Stats</a>
-  </nav>`
+    `<p class="trip-events__msg">Click New Event to create your first point</p>`
   );
 };
 
-export default class TripTabs {
+export default class NoWaypoints {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return createTripTabsTemplate();
+    return createNoWaypointsTemplate();
   }
 
   getElement() {
