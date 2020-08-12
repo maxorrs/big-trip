@@ -39,12 +39,30 @@ const getTimeRange = (timeObj) => {
   return result;
 };
 
+const getType = (type) => {
+  let result = ``;
+
+  switch (type) {
+    case `Check`:
+    case `Sightseeing`:
+    case `Restaurant`:
+      result = `${type} in`;
+      break;
+    default:
+      result = `${type} to`;
+      break;
+  }
+
+  return result;
+};
+
 const createWaypointTemplate = (waypoint) => {
   const startTime = getTime(waypoint.time.startTime);
   const endTime = getTime(waypoint.time.endTime);
 
   const diffTime = getTimeRange(waypoint.time);
-  const type = waypoint.type === `Check` ? `Check-in` : waypoint.type;
+  const nameImage = waypoint.type === `Check` ? `Check-in` : waypoint.type;
+  const type = getType(waypoint.type);
 
   const offers = Object
     .values(waypoint.offers)
@@ -78,9 +96,9 @@ const createWaypointTemplate = (waypoint) => {
     `<li class="trip-events__item">
     <div class="event">
       <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${nameImage}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${waypoint.type} to ${waypoint.city}</h3>
+      <h3 class="event__title">${type} ${waypoint.city}</h3>
 
       <div class="event__schedule">
         <p class="event__time">

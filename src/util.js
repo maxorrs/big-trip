@@ -5,7 +5,7 @@ export const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export const nameMonth = {
+export const NameMonth = {
   1: `JAN`,
   2: `FEB`,
   3: `MAR`,

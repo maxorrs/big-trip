@@ -1,4 +1,4 @@
-import {nameMonth} from '../util.js';
+import {NameMonth} from '../util.js';
 import {createElement} from '../util.js';
 
 const createOneDayTemplate = (index, date) => {
@@ -6,7 +6,7 @@ const createOneDayTemplate = (index, date) => {
 
   const getNameDate = () => {
     const makingDate = new Date(fullDate).toISOString().substr(5, 5).split(`-`);
-    const mounth = nameMonth[+makingDate[0]];
+    const mounth = NameMonth[+makingDate[0]];
     const phrase = `${makingDate[1]} ${mounth}`;
 
     return phrase;
