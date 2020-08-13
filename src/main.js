@@ -111,15 +111,20 @@ const header = pageBody.querySelector(`.page-header`);
 const tripMainContainer = header.querySelector(`.trip-main`);
 const tripControls = tripMainContainer.querySelector(`.trip-controls`);
 const firstTitleTripControls = tripControls.querySelector(`h2`);
+const main = pageBody.querySelector(`.page-main`);
+const tripEventsContainer = main.querySelector(`.trip-events`);
+
 
 render(tripMainContainer, RenderPosition.AFTERBEGIN, new TripInfoView (uniqueDatesSet, citiesForInfo, finalAmount).getElement());
 render(firstTitleTripControls, RenderPosition.AFTEREND, new TripTabsView ().getElement());
 render(tripControls, RenderPosition.BEFOREEND, new TripFiltersView ().getElement());
 
-const main = pageBody.querySelector(`.page-main`);
-const tripEventsContainer = main.querySelector(`.trip-events`);
+if (COUNT_WAYPOINTS) {
+  render(tripEventsContainer, RenderPosition.BEFOREEND, new TripSortView ().getElement());
+} else {
+  render(tripEventsContainer, RenderPosition.AFTERBEGIN, new NoWaypointsView ().getElement());
+}
 
-render(tripEventsContainer, RenderPosition.BEFOREEND, new TripSortView ().getElement());
 
 const daysContainer = new DaysView ().getElement();
 
