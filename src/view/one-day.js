@@ -1,8 +1,8 @@
-import {NameMonth} from '../util.js';
-import {createElement} from '../util.js';
+import {NameMonth} from '../utils/waypoint.js';
+import AbstractView from './abstract.js';
 
 const createOneDayTemplate = (index, date) => {
-  const fullDate = new Date(date);
+  const fullDate = new Date(date).toISOString();
 
   const getNameDate = () => {
     const makingDate = new Date(fullDate).toISOString().substr(5, 5).split(`-`);
@@ -26,26 +26,14 @@ const createOneDayTemplate = (index, date) => {
   );
 };
 
-export default class OneDay {
+export default class OneDay extends AbstractView {
   constructor(index, date) {
-    this._element = null;
+    super();
     this._index = index;
     this._date = date;
   }
 
   getTemplate() {
     return createOneDayTemplate(this._index, this._date);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
