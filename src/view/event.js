@@ -1,65 +1,5 @@
-import {createElement} from '../util.js';
-
-const createPhoto = (photos) => {
-  let result = ``;
-
-  for (const photo of photos) {
-    result += `<img class="event__photo" src="${photo}" alt="Event photo">`;
-  }
-
-  return result;
-};
-
-const getDatalist = (uniqueCitiesDatalist) => {
-  let result = ``;
-  for (const city of uniqueCitiesDatalist.keys()) {
-    result += `<option value="${city}"></option>`;
-  }
-
-  return result;
-};
-
-const remakeDate = (date) => {
-  const mounthValue = new Date(date).toISOString().substr(5, 2);
-  const dateValue = new Date(date).toISOString().substr(8, 2);
-  const yearValue = new Date(date).toISOString().substr(2, 2);
-  const timeValue = new Date(date).toISOString().substr(11, 5);
-
-  return `${dateValue}/${mounthValue}/${yearValue} ${timeValue}`;
-};
-
-const getSumPrice = (item) => {
-  const result = Object
-  .values(item.offers)
-  .filter((it) => {
-    return it.isEnabled === true;
-  }).map((it) => {
-    return it.price;
-  })
-  .reduce((total, value) => {
-    return total + value;
-  }, 0);
-
-  return result;
-};
-
-const setOffers = (item) => {
-  const offersEnabled = Object
-  .values(item.offers)
-  .filter((it) => {
-    return it;
-  });
-
-  const offersChecked = {
-    luggage: offersEnabled[0].isEnabled ? `checked` : ``,
-    comfort: offersEnabled[1].isEnabled ? `checked` : ``,
-    meal: offersEnabled[2].isEnabled ? `checked` : ``,
-    seats: offersEnabled[3].isEnabled ? `checked` : ``,
-    train: offersEnabled[4].isEnabled ? `checked` : ``
-  };
-
-  return offersChecked;
-};
+import AbstractView from './abstract.js';
+import {createPhoto, getDatalist, remakeDate, getSumPrice, setOffers} from '../utils/event.js';
 
 const createEventTemplate = (uniqueCitiesDatalist, waypoint) => {
   const city = waypoint.city;
@@ -248,26 +188,37 @@ const createEventTemplate = (uniqueCitiesDatalist, waypoint) => {
   );
 };
 
-export default class Event {
+export default class Event extends AbstractView {
   constructor(uniqueCitiesDatalist, waypoint) {
-    this._element = null;
+    super();
     this._uniqueCitiesDatalist = uniqueCitiesDatalist;
     this._waypoint = waypoint;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formResetHandler = this._formResetHandler.bind(this);
+  }
+
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.submit();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.submit = callback;
+    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _formResetHandler(evt) {
+    evt.preventDefault();
+    this._callback.reset();
+  }
+
+  setFormResetHandler(callback) {
+    this._callback.reset = callback;
+    this.getElement().addEventListener(`reset`, this._formResetHandler);
   }
 
   getTemplate() {
     return createEventTemplate(this._uniqueCitiesDatalist, this._waypoint);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

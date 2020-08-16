@@ -1,29 +1,31 @@
-import {NameMonth} from '../util.js';
-import {createElement} from '../util.js';
+import {NameMonth} from '../utils/waypoint.js';
+import {PruningDate} from '../utils/date.js';
+import AbstractView from './abstract.js';
 
 const getMinAndMaxDate = (dates) => {
-  if (!dates.size === 0) {
+  if (dates.size) {
     let datesArr = [];
+
     for (let date of dates) {
       datesArr.push(new Date(date).getTime());
     }
+
     const min = new Date(Math.min(...datesArr)).toISOString();
-    const minMounth = NameMonth[+min.substr(5, 2)];
-    const minDate = min.substr(8, 2);
+    const minMonth = NameMonth[+min.substr(PruningDate.VALUE_FROM_MONTH, PruningDate.LENGTH_SHORT)];
+    const minDate = min.substr(PruningDate.VALUE_FROM_DATE, PruningDate.LENGTH_SHORT);
 
     const max = new Date(Math.max(...datesArr)).toISOString();
-    const maxMounth = NameMonth[+max.substr(5, 2)];
-    const maxDate = max.substr(8, 2);
+    const maxMonth = NameMonth[+max.substr(PruningDate.VALUE_FROM_MONTH, PruningDate.LENGTH_SHORT)];
+    const maxDate = max.substr(PruningDate.VALUE_FROM_DATE, PruningDate.LENGTH_SHORT);
 
-    if (minMounth === maxMounth) {
-      return `${minMounth} ${minDate} &nbsp;&mdash;&nbsp; ${maxDate}`;
-    } else {
-      return `${minMounth} ${minDate} &nbsp;&mdash;&nbsp; ${maxMounth} ${maxDate}`;
+    if (minMonth === maxMonth) {
+      return `${minMonth} ${minDate} &nbsp;&mdash;&nbsp; ${maxDate}`;
     }
+
+    return `${minMonth} ${minDate} &nbsp;&mdash;&nbsp; ${maxMonth} ${maxDate}`;
   }
 
   return ``;
-
 };
 
 const getRoute = (cities = {}) => {
@@ -55,9 +57,9 @@ const createTripInfoTemplate = (dates, cities, amount) => {
   );
 };
 
-export default class TripInfo {
+export default class TripInfo extends AbstractView {
   constructor(dates, cities, amount) {
-    this._element = null;
+    super();
     this._dates = dates;
     this._cities = cities;
     this._amount = amount;
@@ -65,17 +67,5 @@ export default class TripInfo {
 
   getTemplate() {
     return createTripInfoTemplate(this._dates, this._cities, this._amount);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }

@@ -11,7 +11,8 @@ import NoWaypointsView from './view/no-waypoints.js';
 import WaypointView from './view/waypoint.js';
 import {generateWaypoint} from './mock/waypoint.js';
 import {COUNT_WAYPOINTS} from './consts.js';
-import {RenderPosition, render} from './util.js';
+import {RenderPosition, render, replace} from './utils/render.js';
+import Trip from './presenter/trip.js';
 
 const MAX_COUNT_CITY_INFO = 3;
 const THREE_HOURS_IN_MS = 10800000;
@@ -106,85 +107,7 @@ for (const waypoint of waypoints) {
   getFinalAmount(waypoint)
 }
 
-const pageBody = document.querySelector(`.page-body`);
-const header = pageBody.querySelector(`.page-header`);
-const tripMainContainer = header.querySelector(`.trip-main`);
-const tripControls = tripMainContainer.querySelector(`.trip-controls`);
-const firstTitleTripControls = tripControls.querySelector(`h2`);
-const main = pageBody.querySelector(`.page-main`);
-const tripEventsContainer = main.querySelector(`.trip-events`);
+const sitePageBody = document.querySelector('.page-body');
 
-
-render(tripMainContainer, RenderPosition.AFTERBEGIN, new TripInfoView (uniqueDatesSet, citiesForInfo, finalAmount).getElement());
-render(firstTitleTripControls, RenderPosition.AFTEREND, new TripTabsView ().getElement());
-render(tripControls, RenderPosition.BEFOREEND, new TripFiltersView ().getElement());
-
-if (COUNT_WAYPOINTS) {
-  render(tripEventsContainer, RenderPosition.BEFOREEND, new TripSortView ().getElement());
-} else {
-  render(tripEventsContainer, RenderPosition.AFTERBEGIN, new NoWaypointsView ().getElement());
-}
-
-
-const daysContainer = new DaysView ().getElement();
-
-render(tripEventsContainer, RenderPosition.BEFOREEND, daysContainer);
-
-
-if (daysContainer) {
-  let i = 1;
-  for (let value of uniqueDatesSet) {
-    render(daysContainer, RenderPosition.BEFOREEND, new OneDayView (i++, value).getElement());
-  }
-}
-
-const addWaypoint = (waypoint) => {
-  const waypointEdit = new EventView (uniqueCitiesDatalist, waypoint);
-  const waypointComponent = new WaypointView (waypoint);
-
-  const startTime = new Date (waypoint.time.startTime).getTime() + THREE_HOURS_IN_MS;
-  const time = new Date (startTime).toISOString().substr(0,10);
-  
-  const selector = daysContainer.querySelector(`[data-start-date="${time}"] > .trip-events__list`);
-
-  const replaceFormToCard = () => {
-    selector.replaceChild(waypointEdit.getElement(), waypointComponent.getElement());
-  };
-
-  const replaceCardToForm = () => {
-    selector.replaceChild(waypointComponent.getElement(), waypointEdit.getElement());
-  };
-
-  const onEscKeyDown = (evt) => {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
-      evt.preventDefault();
-      replaceCardToForm();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    }
-  };
-
-  waypointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-    replaceFormToCard();
-    document.addEventListener(`keydown`, onEscKeyDown);
-  });
-
-  waypointEdit.getElement().addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
-    replaceCardToForm();
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  });
-
-  waypointEdit.getElement().addEventListener(`reset`, (evt) => {
-    evt.preventDefault();
-    replaceCardToForm();
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  });
-
-  if (selector) {
-    render(selector, RenderPosition.BEFOREEND, waypointComponent.getElement());
-  }
-};
-
-for (let i = 0; i < COUNT_WAYPOINTS; i++) {
-  addWaypoint(waypoints[i]);
-}
+const tripPresenter = new Trip (sitePageBody, uniqueDatesSet, citiesForInfo, finalAmount, uniqueCitiesDatalist);
+tripPresenter.init(waypoints);

@@ -1,4 +1,4 @@
-import {getRandomInteger} from '../util.js';
+import {getRandomInteger} from '../utils/common.js';
 const SEVEN_DAYS_MS = 604800000;
 
 const generateType = () => {

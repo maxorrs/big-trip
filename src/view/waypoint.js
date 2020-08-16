@@ -1,60 +1,6 @@
 import {COUNT_OFFERS} from '../consts.js';
-import {createElement} from '../util.js';
-
-const getTime = (time) => {
-  const val = new Date(time);
-  const hours = `${val.getHours() < 10 ? `0` : ``}${val.getHours()}`;
-
-  const minutes = `${val.getMinutes() < 10 ? `0` : ``}${val.getMinutes()}`;
-  const result = `${hours}:${minutes}`;
-
-  return result;
-};
-
-const getTimeRange = (timeObj) => {
-  const startTimeInMs = new Date(timeObj.startTime).getTime();
-  const endTimeInMs = new Date(timeObj.endTime).getTime();
-  const maxValueMinutes = 59;
-  const timeInHour = 60;
-  const timeInDay = 24;
-
-  const diffTime = new Date(endTimeInMs - startTimeInMs);
-  const minutes = diffTime.getMinutes();
-  const hours = diffTime.getHours() * timeInHour;
-  const days = diffTime.getDate() * timeInHour * timeInDay;
-  const sumMin = minutes + hours + days;
-
-  let result;
-  if (sumMin <= maxValueMinutes) {
-    result = `${sumMin}M`;
-  } else {
-    const minutesValue = sumMin % timeInHour;
-    const remainsMinutes = sumMin - minutesValue;
-    const hoursValue = remainsMinutes / timeInHour % timeInDay;
-    const remainsHours = remainsMinutes / timeInHour - hoursValue;
-    const daysValue = remainsHours / timeInDay;
-
-    result = daysValue ? `${daysValue}D ${hoursValue}H ${minutesValue}M` : `${hoursValue}H ${minutesValue}M`;
-  }
-  return result;
-};
-
-const getType = (type) => {
-  let result = ``;
-
-  switch (type) {
-    case `Check`:
-    case `Sightseeing`:
-    case `Restaurant`:
-      result = `${type} in`;
-      break;
-    default:
-      result = `${type} to`;
-      break;
-  }
-
-  return result;
-};
+import {getTime, getTimeRange, getType} from '../utils/waypoint.js';
+import AbstractView from './abstract.js';
 
 const createWaypointTemplate = (waypoint) => {
   const startTime = getTime(waypoint.time.startTime);
@@ -125,25 +71,24 @@ const createWaypointTemplate = (waypoint) => {
   );
 };
 
-export default class Waypoint {
+export default class Waypoint extends AbstractView {
   constructor(waypoint) {
-    this._element = null;
+    super();
     this._waypoint = waypoint;
+    this._clickHandler = this._clickHandler.bind(this);
+    this._rollupBtn = this.getElement().querySelector(`.event__rollup-btn`);
+  }
+
+  _clickHandler() {
+    this._callback.click();
+  }
+
+  setEditClickHandler(callback) {
+    this._callback.click = callback;
+    this._rollupBtn.addEventListener(`click`, this._clickHandler);
   }
 
   getTemplate() {
     return createWaypointTemplate(this._waypoint);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
