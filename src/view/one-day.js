@@ -2,6 +2,18 @@ import {NameMonth} from '../utils/waypoint.js';
 import AbstractView from './abstract.js';
 
 const createOneDayTemplate = (index, date) => {
+  if (!index && !date) {
+    return (
+      `<li class="trip-days__item  day">
+        <div class="day__info"></div>
+        <ul class="trip-events__list">
+
+        </ul>
+      </li>
+      `
+    );
+  }
+
   const fullDate = new Date(date).toISOString();
 
   const getNameDate = () => {
@@ -27,7 +39,7 @@ const createOneDayTemplate = (index, date) => {
 };
 
 export default class OneDay extends AbstractView {
-  constructor(index, date) {
+  constructor(index = ``, date = ``) {
     super();
     this._index = index;
     this._date = date;
