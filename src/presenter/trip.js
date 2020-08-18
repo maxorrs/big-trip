@@ -7,7 +7,7 @@ import DaysView from '../view/days.js';
 import OneDayView from '../view/one-day.js';
 import NoWaypointsView from '../view/no-waypoints.js';
 import WaypointView from '../view/waypoint.js';
-import {render, RenderPosition, replace} from '../utils/render.js';
+import {render, RenderPosition, replace, remove} from '../utils/render.js';
 import {PruningDate} from '../utils/date.js';
 import {sortTime, sortPrice} from '../utils/waypoint.js';
 import {COUNT_WAYPOINTS, SortType} from '../consts.js';
@@ -160,7 +160,7 @@ export default class Trip {
   }
 
   _removeSort() {
-    this._tripSortComponent.removeElement();
+    remove(this._tripSortComponent);
   }
 
   _renderSort() {
