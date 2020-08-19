@@ -13,6 +13,22 @@ export const NameMonth = {
   12: `DEC`
 };
 
+export const getSumWaypoint = (waypoint) => {
+  const amount = Object
+    .values(waypoint.offers)
+    .filter((it) => {
+      return it.isEnabled;
+    })
+    .map((it) => {
+      return it.price;
+    })
+    .reduce((total, value) => {
+      return total + value;
+    }, 0);
+
+  return amount;
+};
+
 export const getTime = (time) => {
   const val = new Date(time);
   const hours = `${val.getHours() < 10 ? `0` : ``}${val.getHours()}`;
@@ -66,4 +82,30 @@ export const getType = (type) => {
   }
 
   return result;
+};
+
+export const sortTime = (a, b) => {
+  const timeA = new Date(a.time.endTime).getTime() - new Date(a.time.startTime).getTime();
+  const timeB = new Date(b.time.endTime).getTime() - new Date(b.time.startTime).getTime();
+
+  if (timeA < timeB) {
+    return 1;
+  } else if (timeA > timeB) {
+    return -1;
+  }
+
+  return 0;
+};
+
+export const sortPrice = (a, b) => {
+  const priceA = getSumWaypoint(a);
+  const priceB = getSumWaypoint(b);
+
+  if (priceA < priceB) {
+    return 1;
+  } else if (priceA > priceB) {
+    return -1;
+  }
+
+  return 0;
 };
