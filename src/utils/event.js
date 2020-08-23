@@ -41,21 +41,3 @@ export const getSumPrice = (item) => {
 
   return result;
 };
-
-export const setOffers = (item) => {
-  const offersEnabled = Object
-  .values(item.offers)
-  .filter((it) => {
-    return it;
-  });
-
-  const offersChecked = {
-    luggage: offersEnabled[0].isEnabled ? `checked` : ``,
-    comfort: offersEnabled[1].isEnabled ? `checked` : ``,
-    meal: offersEnabled[2].isEnabled ? `checked` : ``,
-    seats: offersEnabled[3].isEnabled ? `checked` : ``,
-    train: offersEnabled[4].isEnabled ? `checked` : ``
-  };
-
-  return offersChecked;
-};
