@@ -31,44 +31,6 @@ export const getSumWaypoint = (waypoint) => {
   return amount;
 };
 
-export const getTime = (time) => {
-  const val = new Date(time);
-  const hours = `${val.getHours() < 10 ? `0` : ``}${val.getHours()}`;
-
-  const minutes = `${val.getMinutes() < 10 ? `0` : ``}${val.getMinutes()}`;
-  const result = `${hours}:${minutes}`;
-
-  return result;
-};
-
-export const getTimeRange = (timeObj) => {
-  const startTimeInMs = new Date(timeObj.startTime).getTime();
-  const endTimeInMs = new Date(timeObj.endTime).getTime();
-  const maxValueMinutes = 59;
-  const timeInHour = 60;
-  const timeInDay = 24;
-
-  const diffTime = new Date(endTimeInMs - startTimeInMs);
-  const minutes = diffTime.getMinutes();
-  const hours = diffTime.getHours() * timeInHour;
-  const days = diffTime.getDate() * timeInHour * timeInDay;
-  const sumMin = minutes + hours + days;
-
-  let result;
-  if (sumMin <= maxValueMinutes) {
-    result = `${sumMin}M`;
-  } else {
-    const minutesValue = sumMin % timeInHour;
-    const remainsMinutes = sumMin - minutesValue;
-    const hoursValue = remainsMinutes / timeInHour % timeInDay;
-    const remainsHours = remainsMinutes / timeInHour - hoursValue;
-    const daysValue = remainsHours / timeInDay;
-
-    result = daysValue ? `${daysValue}D ${hoursValue}H ${minutesValue}M` : `${hoursValue}H ${minutesValue}M`;
-  }
-  return result;
-};
-
 export const getType = (type) => {
   let result = ``;
   const typeChange = type === `Check-in` ? `Check` : type;
@@ -88,8 +50,8 @@ export const getType = (type) => {
 };
 
 export const sortTime = (a, b) => {
-  const timeA = new Date(a.time.endTime).getTime() - new Date(a.time.startTime).getTime();
-  const timeB = new Date(b.time.endTime).getTime() - new Date(b.time.startTime).getTime();
+  const timeA = new Date(a.endDate).getTime() - new Date(a.startDate).getTime();
+  const timeB = new Date(b.endDate).getTime() - new Date(b.startDate).getTime();
 
   if (timeA < timeB) {
     return 1;
@@ -101,8 +63,8 @@ export const sortTime = (a, b) => {
 };
 
 export const sortPrice = (a, b) => {
-  const priceA = getSumWaypoint(a);
-  const priceB = getSumWaypoint(b);
+  const priceA = a.price;
+  const priceB = b.price;
 
   if (priceA < priceB) {
     return 1;

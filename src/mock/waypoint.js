@@ -25,17 +25,24 @@ const generateCity = () => {
   return cities[getRandomInteger(0, cities.length - 1)];
 };
 
-const generateDate = () => {
+const generateStartDate = () => {
   const currentTime = new Date().getTime();
   const timeGap = SEVEN_DAYS_MS + currentTime;
 
-  const startTimeInMs = new Date(getRandomInteger(currentTime, timeGap));
-  const endTimeInMs = new Date(getRandomInteger(startTimeInMs, timeGap));
+  const startDate = new Date(getRandomInteger(currentTime, timeGap)).toISOString();
 
-  const startTime = startTimeInMs.toISOString().substr(0, 16);
-  const endTime = endTimeInMs.toISOString().substr(0, 16);
 
-  return {startTime, endTime};
+  return startDate;
+};
+
+const generateEndDate = (startDate) => {
+  const currentTime = new Date().getTime();
+  const timeGap = SEVEN_DAYS_MS + currentTime;
+
+  const startDateInMs = new Date(startDate).getTime();
+  const endDate = new Date(getRandomInteger(startDateInMs, timeGap)).toISOString();
+
+  return endDate;
 };
 
 export const generateWaypoint = () => {
@@ -53,7 +60,8 @@ export const generateWaypoint = () => {
       `http://picsum.photos/248/152?r=${Math.random()}`,
       `http://picsum.photos/248/152?r=${Math.random()}`
     ],
-    time: generateDate(),
+    startDate: generateStartDate(),
+    endDate: generateEndDate(generateStartDate()),
     isFavorite: Boolean(getRandomInteger(0, 1))
   };
 };

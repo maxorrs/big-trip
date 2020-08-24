@@ -5,14 +5,16 @@ import {getSumWaypoint} from './utils/waypoint.js';
 import {COUNT_WAYPOINTS} from './consts.js';
 import Trip from './presenter/trip.js';
 
+import moment from 'moment';
+
 const MAX_COUNT_CITY_INFO = 3;
 
 const waypoints = new Array(COUNT_WAYPOINTS)
   .fill()
   .map(generateWaypoint)
   .sort((a, b) => {
-    const firstDate = new Date (a.time.startTime).getTime();
-    const secondDate = new Date (b.time.startTime).getTime();
+    const firstDate = new Date (a.startDate).getTime();
+    const secondDate = new Date (b.startDate).getTime();
   
     if (firstDate > secondDate) {
       return 1;
@@ -26,7 +28,7 @@ const waypoints = new Array(COUNT_WAYPOINTS)
 const uniqueDates = waypoints
   .slice()
   .map((waypoint) => {
-    return waypoint.time.startTime.substr(0,10); 
+    return moment(waypoint.startDate).format(`YYYY-MM-DD`); 
   });
 
 const uniqueDatesSet = new Set (uniqueDates);
@@ -36,7 +38,7 @@ const cities = waypoints
   .map((waypoint) => {
     return {
       city: waypoint.city,
-      startTime: waypoint.time.startTime
+      startDate: waypoint.startDate
     }
   })
   .sort((a, b) => {

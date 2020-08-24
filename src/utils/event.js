@@ -18,15 +18,6 @@ export const getDatalist = (uniqueCitiesDatalist) => {
   return result;
 };
 
-export const remakeDate = (date) => {
-  const monthValue = new Date(date).toISOString().substr(5, 2);
-  const dateValue = new Date(date).toISOString().substr(8, 2);
-  const yearValue = new Date(date).toISOString().substr(2, 2);
-  const timeValue = new Date(date).toISOString().substr(11, 5);
-
-  return `${dateValue}/${monthValue}/${yearValue} ${timeValue}`;
-};
-
 export const getSumPrice = (item) => {
   const result = Object
   .values(item.offers)
