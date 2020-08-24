@@ -2,6 +2,21 @@ import {COUNT_OFFERS} from '../consts.js';
 import {getTime, getTimeRange, getType} from '../utils/waypoint.js';
 import AbstractView from './abstract.js';
 
+const createEnabledOffersTemplate = (enabledOffers) => {
+  return (Object
+    .values(enabledOffers)
+    .map((offer) => {
+      return (
+        `<li class="event__offer">
+          <span class="event__offer-title">${offer.description}</span>
+            &plus;
+            &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
+        </li>`
+      );
+    }).join(``)
+  );
+};
+
 const createWaypointTemplate = (waypoint) => {
   const startTime = getTime(waypoint.time.startTime);
   const endTime = getTime(waypoint.time.endTime);
@@ -9,34 +24,16 @@ const createWaypointTemplate = (waypoint) => {
   const diffTime = getTimeRange(waypoint.time);
   const nameImage = waypoint.type === `Check` ? `Check-in` : waypoint.type;
   const type = getType(waypoint.type);
+  const price = waypoint.price;
 
-  const offers = Object
+  const enabledOffers = Object
     .values(waypoint.offers)
     .filter((it) => {
       return it.isEnabled;
     });
 
-  const enabledOffers = offers
+  const enabledOffersDescription = enabledOffers
     .slice(0, COUNT_OFFERS);
-
-  let offersListCode = [];
-  for (let i = 0; i < enabledOffers.length; i++) {
-    offersListCode += `
-      <li class="event__offer">
-        <span class="event__offer-title">${enabledOffers[i].description}</span>
-        &plus;
-        &euro;&nbsp;<span class="event__offer-price">${enabledOffers[i].price}</span>
-      </li>
-    `;
-  }
-
-  const sumPrice = offers
-    .map((it) => {
-      return it.price;
-    })
-    .reduce((total, value) => {
-      return total + value;
-    }, 0);
 
   return (
     `<li class="trip-events__item">
@@ -56,12 +53,12 @@ const createWaypointTemplate = (waypoint) => {
       </div>
 
       <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">${sumPrice}</span>
+        &euro;&nbsp;<span class="event__price-value">${price}</span>
       </p>
 
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${offersListCode}
+        ${createEnabledOffersTemplate(enabledOffersDescription)}
       </ul>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>

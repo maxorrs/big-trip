@@ -48,4 +48,5 @@ export default class OneDay extends AbstractView {
   getTemplate() {
     return createOneDayTemplate(this._index, this._date);
   }
+
 }

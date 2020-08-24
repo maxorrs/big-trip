@@ -79,7 +79,7 @@ let finalAmount = 0;
 
 const getFinalAmount = (waypoint) => {
   const amount = getSumWaypoint(waypoint);
-  finalAmount += amount;
+  finalAmount += amount + waypoint.price;
 };
 
 for (const waypoint of waypoints) {
