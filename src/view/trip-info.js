@@ -1,6 +1,5 @@
-import {NameMonth} from '../utils/waypoint.js';
-import {PruningDate} from '../utils/date.js';
 import AbstractView from './abstract.js';
+import moment from 'moment';
 
 const getMinAndMaxDate = (dates) => {
   if (dates.size) {
@@ -10,19 +9,21 @@ const getMinAndMaxDate = (dates) => {
       datesArr.push(new Date(date).getTime());
     }
 
-    const min = new Date(Math.min(...datesArr)).toISOString();
-    const minMonth = NameMonth[+min.substr(PruningDate.VALUE_FROM_MONTH, PruningDate.LENGTH_SHORT)];
-    const minDate = min.substr(PruningDate.VALUE_FROM_DATE, PruningDate.LENGTH_SHORT);
+    const minDate = Math.min(...datesArr);
+    const maxDate = Math.max(...datesArr);
 
-    const max = new Date(Math.max(...datesArr)).toISOString();
-    const maxMonth = NameMonth[+max.substr(PruningDate.VALUE_FROM_MONTH, PruningDate.LENGTH_SHORT)];
-    const maxDate = max.substr(PruningDate.VALUE_FROM_DATE, PruningDate.LENGTH_SHORT);
+    const minDay = moment(minDate).format(`DD`);
+    const maxDay = moment(maxDate).format(`DD`);
+
+    const minMonth = moment(minDate).format(`MMM`);
+    const maxMonth = moment(maxDate).format(`MMM`);
+
 
     if (minMonth === maxMonth) {
-      return `${minMonth} ${minDate} &nbsp;&mdash;&nbsp; ${maxDate}`;
+      return `${minMonth} ${minDay} &nbsp;&mdash;&nbsp; ${maxDay}`;
     }
 
-    return `${minMonth} ${minDate} &nbsp;&mdash;&nbsp; ${maxMonth} ${maxDate}`;
+    return `${minMonth} ${minDay} &nbsp;&mdash;&nbsp; ${maxMonth} ${maxDay}`;
   }
 
   return ``;

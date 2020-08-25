@@ -1,7 +1,11 @@
 
 import SmartView from './smart.js';
-import {createPhoto, getDatalist, remakeDate} from '../utils/event.js';
+import {createPhoto, getDatalist} from '../utils/event.js';
+import {formatDateForEditComponent} from '../utils/date.js';
 import {types, getType, getOffers, generateDescription} from '../utils/waypoint.js';
+import flatpickr from 'flatpickr';
+
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
 const createTypeActivityTemplate = (data) => {
   return (Object
@@ -52,11 +56,10 @@ const createOffersTemplate = (data) => {
 };
 
 const createEventTemplate = (uniqueCitiesDatalist, data) => {
-  const {city, isFavorite, price, photos, description} = data;
-  const {startTime, endTime} = data.time;
-  const photo = createPhoto(photos);
-  const startTimeValue = remakeDate(startTime);
-  const endTimeValue = remakeDate(endTime);
+  const {city, isFavorite, price, photos, description, startDate, endDate} = data;
+  const photosTemplate = createPhoto(photos);
+  const startTimeValue = formatDateForEditComponent(startDate);
+  const endTimeValue = formatDateForEditComponent(endDate);
   const typeForAttr = data.type.toLowerCase() === `check` ? `check-in` : data.type.toLowerCase();
   const type = getType(data.type);
 
@@ -145,7 +148,7 @@ const createEventTemplate = (uniqueCitiesDatalist, data) => {
 
         <div class="event__photos-container">
           <div class="event__photos-tape">
-            ${photo}
+            ${photosTemplate}
           </div>
         </div>
       </section>
@@ -159,6 +162,9 @@ export default class EditEvent extends SmartView {
     super();
     this._uniqueCitiesDatalist = uniqueCitiesDatalist;
     this._data = EditEvent.parseWaypointToData(waypoint);
+    this._startDatepicker = null;
+    this._endDatepicker = null;
+
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formResetHandler = this._formResetHandler.bind(this);
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
@@ -166,7 +172,61 @@ export default class EditEvent extends SmartView {
     this._destinationInputHandler = this._destinationInputHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
 
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
+
     this._setInnerHandlers();
+    this._setStartDatepicker();
+    this._setEndDatepicker();
+  }
+
+  _setStartDatepicker() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        {
+          dateFormat: `d/m/y H:i`,
+          enableTime: true,
+          time24hr: true,
+          defaultDate: this._data.startDate,
+          onChange: this._startDateChangeHandler
+        }
+    );
+  }
+
+  _setEndDatepicker() {
+    if (this._endDatepicker) {
+      this._endDatepicker.destroy();
+      this._endDatepicker = null;
+    }
+
+    this._endDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        {
+          dateFormat: `d/m/y H:i`,
+          enableTime: true,
+          time24hr: true,
+          defaultDate: this._data.endDate,
+          minDate: this._data.startDate,
+          onChange: this._endDateChangeHandler
+        }
+    );
+  }
+
+  _startDateChangeHandler(selectedDates) {
+    this.updateData({
+      startDate: new Date(selectedDates[0]).toISOString()
+    }, true);
+  }
+
+  _endDateChangeHandler(selectedDates) {
+    this.updateData({
+      endDate: new Date(selectedDates[0]).toISOString()
+    }, true);
   }
 
   static parseWaypointToData(waypoint) {
@@ -225,6 +285,8 @@ export default class EditEvent extends SmartView {
     this.setFormSubmitHandler(this._callback.submit);
     this.setFormResetHandler(this._callback.reset);
     this.setClickCloseHandler(this._callback.close);
+    this._setStartDatepicker();
+    this._setEndDatepicker();
   }
 
   _setInnerHandlers() {

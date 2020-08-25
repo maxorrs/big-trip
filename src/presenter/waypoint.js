@@ -1,9 +1,9 @@
 import EditEventView from '../view/edit-event.js';
 import WaypointView from '../view/waypoint.js';
-import {PruningDate} from '../utils/date.js';
+import {formateDateForSelector} from '../utils/date.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 
-const THREE_HOURS_IN_MS = 10800000;
+// const THREE_HOURS_IN_MS = 10800000;
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -36,11 +36,11 @@ export default class Waypoint {
     this._waypointEditComponent = new EditEventView(this._uniqueCitiesDatalist, waypoint);
     this._waypointComponent = new WaypointView(waypoint);
 
-    const startTime = new Date(waypoint.time.startTime).getTime() + THREE_HOURS_IN_MS;
-    const time = new Date(startTime).toISOString().substr(0, PruningDate.LENGTH_FULL_DATE);
+    // const startTime = new Date(waypoint.time.startTime).getTime() + THREE_HOURS_IN_MS;
+    // const time = new Date(startTime).toISOString().substr(0, PruningDate.LENGTH_FULL_DATE);
+    const time = formateDateForSelector(waypoint.startDate);
 
     this._waypointComponent.setEditClickHandler(this._handleEditClick);
-
     this._waypointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._waypointEditComponent.setFormResetHandler(this._handleFormReset);
     this._waypointEditComponent.setClickCloseHandler(this._handleCloseClick);

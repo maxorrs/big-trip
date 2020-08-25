@@ -1,5 +1,6 @@
 import {COUNT_OFFERS} from '../consts.js';
-import {getTime, getTimeRange, getType} from '../utils/waypoint.js';
+import {getType} from '../utils/waypoint.js';
+import {formatTimeForWaypoint, getTimeRange, formatDateForWaypoint} from '../utils/date.js';
 import AbstractView from './abstract.js';
 
 const createEnabledOffersTemplate = (enabledOffers) => {
@@ -18,10 +19,13 @@ const createEnabledOffersTemplate = (enabledOffers) => {
 };
 
 const createWaypointTemplate = (waypoint) => {
-  const startTime = getTime(waypoint.time.startTime);
-  const endTime = getTime(waypoint.time.endTime);
+  const startDateForAttr = formatDateForWaypoint(waypoint.startDate);
+  const endDateForAttr = formatDateForWaypoint(waypoint.endDate);
 
-  const diffTime = getTimeRange(waypoint.time);
+  const startDate = formatTimeForWaypoint(waypoint.startDate);
+  const endDate = formatTimeForWaypoint(waypoint.endDate);
+
+  const diffTime = getTimeRange(waypoint.startDate, waypoint.endDate);
   const nameImage = waypoint.type === `Check` ? `Check-in` : waypoint.type;
   const type = getType(waypoint.type);
   const price = waypoint.price;
@@ -45,9 +49,9 @@ const createWaypointTemplate = (waypoint) => {
 
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${waypoint.time.startTime}">${startTime}</time>
+          <time class="event__start-time" datetime="${startDateForAttr}">${startDate}</time>
           &mdash;
-          <time class="event__end-time" datetime="${waypoint.time.endTime}">${endTime}</time>
+          <time class="event__end-time" datetime="${endDateForAttr}">${endDate}</time>
         </p>
         <p class="event__duration">${diffTime}</p>
       </div>
