@@ -1,3 +1,4 @@
+import {Tense} from '../consts.js';
 import moment from 'moment';
 
 export const PruningDate = {
@@ -47,4 +48,12 @@ export const getTimeRange = (startDate, endDate) => {
   }
 
   return `${duration.hours}H ${duration.minutes}M`;
+};
+
+export const isDatesEqual = (firstDate, secondDate) => {
+  return moment(firstDate).isSame(secondDate);
+};
+
+export const isFutureOrPast = (date, time) => {
+  return time === Tense.FUTURE ? moment(date).isBefore() : moment(date).isAfter();
 };

@@ -2,8 +2,8 @@ import EditEventView from '../view/edit-event.js';
 import WaypointView from '../view/waypoint.js';
 import {formateDateForSelector} from '../utils/date.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
-
-// const THREE_HOURS_IN_MS = 10800000;
+import {UserAction, UpdateType} from '../consts.js';
+import {isDatesEqual} from '../utils/date.js';
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -11,7 +11,7 @@ const Mode = {
 };
 
 export default class Waypoint {
-  constructor(container, uniqueCitiesDatalist, changeData, changeMode) {
+  constructor(container, changeData, changeMode) {
     this._container = container;
     this._waypointComponent = null;
     this._waypointEditComponent = null;
@@ -19,11 +19,10 @@ export default class Waypoint {
     this._changeMode = changeMode;
     this._mode = Mode.DEFAULT;
 
-    this._uniqueCitiesDatalist = uniqueCitiesDatalist;
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._handleEditClick = this._handleEditClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
-    this._handleFormReset = this._handleFormReset.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._handleCloseClick = this._handleCloseClick.bind(this);
   }
 
@@ -32,17 +31,14 @@ export default class Waypoint {
 
     const prevWaypointEditComponent = this._waypointEditComponent;
     const prevWaypointComponent = this._waypointComponent;
-
-    this._waypointEditComponent = new EditEventView(this._uniqueCitiesDatalist, waypoint);
+    this._waypointEditComponent = new EditEventView(false, waypoint);
     this._waypointComponent = new WaypointView(waypoint);
 
-    // const startTime = new Date(waypoint.time.startTime).getTime() + THREE_HOURS_IN_MS;
-    // const time = new Date(startTime).toISOString().substr(0, PruningDate.LENGTH_FULL_DATE);
     const time = formateDateForSelector(waypoint.startDate);
 
     this._waypointComponent.setEditClickHandler(this._handleEditClick);
     this._waypointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
-    this._waypointEditComponent.setFormResetHandler(this._handleFormReset);
+    this._waypointEditComponent.setClickDeleteHandler(this._handleDeleteClick);
     this._waypointEditComponent.setClickCloseHandler(this._handleCloseClick);
 
     const selector = this._container.getElement().querySelector(`[data-start-date="${time}"] > .trip-events__list`);
@@ -86,14 +82,12 @@ export default class Waypoint {
     document.addEventListener(`keydown`, this._onEscKeyDown);
     this._changeMode();
     this._mode = Mode.EDITING;
-
   }
 
   _replaceFormToCard() {
     replace(this._waypointComponent, this._waypointEditComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     this._mode = Mode.DEFAULT;
-
   }
 
   _onEscKeyDown(evt) {
@@ -111,13 +105,22 @@ export default class Waypoint {
   }
 
   _handleFormSubmit(waypointChange) {
-    this._changeData(waypointChange);
+    const isMinorUpdate = !isDatesEqual(this._waypoint.startDate, waypointChange.startDate);
+
+    this._changeData(
+        UserAction.UPDATE_WAYPOINT,
+        isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+        waypointChange
+    );
     this._replaceFormToCard();
   }
 
-  _handleFormReset() {
-    this._waypointEditComponent.reset(this._waypoint);
-    this._replaceFormToCard();
+  _handleDeleteClick(waypoint) {
+    this._changeData(
+        UserAction.DELETE_WAYPOINT,
+        UpdateType.MINOR,
+        waypoint
+    );
   }
 
   _handleCloseClick() {

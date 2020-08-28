@@ -26,7 +26,7 @@ const createWaypointTemplate = (waypoint) => {
   const endDate = formatTimeForWaypoint(waypoint.endDate);
 
   const diffTime = getTimeRange(waypoint.startDate, waypoint.endDate);
-  const nameImage = waypoint.type === `Check` ? `Check-in` : waypoint.type;
+  const nameImage = waypoint.type === `Check` ? `check-in` : waypoint.type.toLowerCase();
   const type = getType(waypoint.type);
   const price = waypoint.price;
 

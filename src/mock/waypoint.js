@@ -1,10 +1,9 @@
-import {getRandomInteger} from '../utils/common.js';
+import {getRandomInteger, generateId} from '../utils/common.js';
 import {types, getOffers, generateDescription} from '../utils/waypoint.js';
 
 const SEVEN_DAYS_MS = 604800000;
 const MAX_PRICE = 500;
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 const generateType = () => {
   const typeValues = Object
@@ -27,10 +26,9 @@ const generateCity = () => {
 
 const generateStartDate = () => {
   const currentTime = new Date().getTime();
-  const timeGap = SEVEN_DAYS_MS + currentTime;
-
-  const startDate = new Date(getRandomInteger(currentTime, timeGap)).toISOString();
-
+  const timeMin = currentTime - SEVEN_DAYS_MS;
+  const timeMax = currentTime + SEVEN_DAYS_MS;
+  const startDate = new Date(getRandomInteger(timeMin, timeMax)).toISOString();
 
   return startDate;
 };
