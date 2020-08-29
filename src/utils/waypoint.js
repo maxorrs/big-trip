@@ -1,4 +1,7 @@
 import {getRandomInteger} from './common.js';
+import moment from 'moment';
+
+const MAX_COUNT_CITY_INFO = 3;
 
 export const NameMonth = {
   1: `JAN`,
@@ -47,6 +50,19 @@ export const getType = (type) => {
   }
 
   return result;
+};
+
+export const defaultSortWaypoints = (a, b) => {
+  const firstDate = new Date(a.startDate).getTime();
+  const secondDate = new Date(b.startDate).getTime();
+
+  if (firstDate > secondDate) {
+    return 1;
+  } else if (firstDate < secondDate) {
+    return -1;
+  }
+
+  return 0;
 };
 
 export const sortTime = (a, b) => {
@@ -209,4 +225,70 @@ export const generateDescription = () => {
   const descriptions = text.split(`. `);
 
   return `${descriptions[getRandomInteger(0, descriptions.length - 1)]}.`;
+};
+
+export const getUniqueDates = (waypoints) => {
+  return new Set(waypoints
+    .slice()
+    .map((waypoint) => moment(waypoint.startDate).format(`YYYY-MM-DD`))
+    .sort()
+  );
+};
+
+export const getCities = (waypoints) => {
+  return waypoints
+  .slice()
+  .map((waypoint) => {
+    return {
+      city: waypoint.city,
+      startDate: waypoint.startDate
+    };
+  })
+  .sort(defaultSortWaypoints);
+};
+
+export const getUniqueCitiesDatalist = (waypoints) => {
+  const cities = getCities(waypoints);
+
+  return new Set(cities
+  .slice()
+  .map((it) => {
+    return it.city;
+  })
+  .sort());
+};
+
+export const getCitiesForInfo = (waypoints) => {
+  const cities = getCities(waypoints);
+
+  let citiesForInfo = [];
+
+  if (cities.length > MAX_COUNT_CITY_INFO) {
+    citiesForInfo.push(cities[0].city);
+    citiesForInfo.push(`...`);
+    citiesForInfo.push(cities[cities.length - 1].city);
+  } else {
+    citiesForInfo = cities
+    .slice()
+    .map((it) => {
+      return it.city;
+    });
+  }
+
+  return citiesForInfo;
+};
+
+export const getFinalAmount = (waypoints) => {
+  let finalAmount = 0;
+
+  waypoints.forEach((waypoint) => {
+    finalAmount += waypoint.price;
+  });
+
+  return finalAmount;
+};
+
+export const NewWaypointMode = {
+  OPEN: `OPEN`,
+  CLOSE: `CLOSE`
 };

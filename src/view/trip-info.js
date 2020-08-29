@@ -5,7 +5,7 @@ const getMinAndMaxDate = (dates) => {
   if (dates.size) {
     let datesArr = [];
 
-    for (let date of dates) {
+    for (const date of dates) {
       datesArr.push(new Date(date).getTime());
     }
 
@@ -18,8 +18,9 @@ const getMinAndMaxDate = (dates) => {
     const minMonth = moment(minDate).format(`MMM`);
     const maxMonth = moment(maxDate).format(`MMM`);
 
-
-    if (minMonth === maxMonth) {
+    if (minMonth === maxMonth && minDay === maxDay) {
+      return `${minMonth} ${minDay}`;
+    } else if (minMonth === maxMonth) {
       return `${minMonth} ${minDay} &nbsp;&mdash;&nbsp; ${maxDay}`;
     }
 

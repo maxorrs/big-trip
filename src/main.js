@@ -1,94 +1,35 @@
 'use strict';
 
 import {generateWaypoint} from './mock/waypoint.js';
-import {getSumWaypoint} from './utils/waypoint.js';
+import {defaultSortWaypoints} from './utils/waypoint.js';
 import {COUNT_WAYPOINTS} from './consts.js';
-import Trip from './presenter/trip.js';
+import InfoPresenter from './presenter/info.js';
+import TripPresenter from './presenter/trip.js';
+import FilterPresenter from './presenter/filter.js'
+import WaypointsModel from './model/waypoints.js';
+import FilterModel from './model/filter.js';
 
-import moment from 'moment';
 
-const MAX_COUNT_CITY_INFO = 3;
-
+const sitePageBody = document.querySelector('.page-body');
 const waypoints = new Array(COUNT_WAYPOINTS)
   .fill()
   .map(generateWaypoint)
-  .sort((a, b) => {
-    const firstDate = new Date (a.startDate).getTime();
-    const secondDate = new Date (b.startDate).getTime();
-  
-    if (firstDate > secondDate) {
-      return 1;
-    } else if (firstDate < secondDate) {
-      return -1;
-    } 
+  .sort(defaultSortWaypoints);
 
-    return 0;
-  });
+const waypointsModel = new WaypointsModel();
+waypointsModel.setWaypoints(waypoints);
 
-const uniqueDates = waypoints
-  .slice()
-  .map((waypoint) => {
-    return moment(waypoint.startDate).format(`YYYY-MM-DD`); 
-  });
+const filterModel = new FilterModel(); 
 
-const uniqueDatesSet = new Set (uniqueDates);
+const filterPresenter = new FilterPresenter(sitePageBody, filterModel, waypointsModel);
+const tripPresenter = new TripPresenter(sitePageBody, waypointsModel, filterModel);
+const infoPreseter = new InfoPresenter(sitePageBody, waypointsModel, tripPresenter);
 
-const cities = waypoints
-  .slice()
-  .map((waypoint) => {
-    return {
-      city: waypoint.city,
-      startDate: waypoint.startDate
-    }
-  })
-  .sort((a, b) => {
-    const firstDate = new Date(a.startTime).getTime();
-    const secondDate = new Date(b.startTime).getTime();
-    
-    if (firstDate > secondDate) {
-      return 1;
-    } else if (firstDate < secondDate) {
-      return -1;
-    } 
+infoPreseter.init();
+filterPresenter.init();
+tripPresenter.init();
 
-    return 0;
-  });
-
-const citiesDatalist = cities
-  .slice()
-  .map((it) => {
-    return it.city;
-  })
-  .sort();
-
-const uniqueCitiesDatalist = new Set(citiesDatalist);
-
-let citiesForInfo = [];
-
-if (cities.length > MAX_COUNT_CITY_INFO) {
-  citiesForInfo.push(cities[0].city);
-  citiesForInfo.push('...');
-  citiesForInfo.push(cities[cities.length - 1].city);
-} else {
-  citiesForInfo = cities
-  .slice()
-  .map((it) => {
-    return it.city;
-  });
-}
-
-let finalAmount = 0;
-
-const getFinalAmount = (waypoint) => {
-  const amount = getSumWaypoint(waypoint);
-  finalAmount += amount + waypoint.price;
-};
-
-for (const waypoint of waypoints) {
-  getFinalAmount(waypoint)
-}
-
-const sitePageBody = document.querySelector('.page-body');
-
-const tripPresenter = new Trip (sitePageBody, uniqueDatesSet, citiesForInfo, finalAmount, uniqueCitiesDatalist);
-tripPresenter.init(waypoints);
+// document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
+//   evt.preventDefault();
+//   tripPresenter.createWaypoint();
+// })

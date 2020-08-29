@@ -2,7 +2,6 @@ import AbstractView from './abstract.js';
 import {SortType} from '../consts.js';
 
 const createTripSortTemplate = (sortType) => {
-
   const title = sortType === SortType.DEFAULT ? `Day` : ``;
   const checkedDefault = sortType === SortType.DEFAULT ? `checked` : ``;
   const checkedTime = sortType === SortType.TIME ? `checked` : ``;
@@ -43,10 +42,10 @@ const createTripSortTemplate = (sortType) => {
 };
 
 export default class TripSort extends AbstractView {
-  constructor() {
+  constructor(sortType) {
     super();
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
-    this._sortType = SortType.DEFAULT;
+    this._sortType = sortType;
   }
 
   getTemplate() {
