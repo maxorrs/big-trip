@@ -1,4 +1,4 @@
-export const COUNT_WAYPOINTS = 25;
+export const COUNT_WAYPOINTS = 22;
 export const COUNT_OFFERS = 3;
 export const MAX_COUNT_CITY_INFO = 3;
 
@@ -29,4 +29,10 @@ export const FilterType = {
 export const Tense = {
   FUTURE: `future`,
   PAST: `past`
+};
+
+export const MenuItem = {
+  TABLE: `TABLE`,
+  STATS: `STATS`,
+  ADD_WAYPOINT: `ADD_WAYPOINT`
 };

@@ -40,6 +40,10 @@ export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
 
+  if (newElement.firstChild.nodeName === `#text`) {
+    return newElement.lastChild;
+  }
+
   return newElement.firstChild;
 };
 

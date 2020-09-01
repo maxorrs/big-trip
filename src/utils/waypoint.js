@@ -3,21 +3,6 @@ import moment from 'moment';
 
 const MAX_COUNT_CITY_INFO = 3;
 
-export const NameMonth = {
-  1: `JAN`,
-  2: `FEB`,
-  3: `MAR`,
-  4: `APR`,
-  5: `MAY`,
-  6: `JUN`,
-  7: `JUL`,
-  8: `AUG`,
-  9: `SEM`,
-  10: `OCT`,
-  11: `NOV`,
-  12: `DEC`
-};
-
 export const getSumWaypoint = (waypoint) => {
   const amount = Object
     .values(waypoint.offers)
