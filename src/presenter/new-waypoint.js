@@ -11,6 +11,7 @@ export default class NewWaypoint {
     this._changeData = changeData;
 
     this._newWaypointMode = NewWaypointMode.CLOSE;
+    this._destroyCallback = null;
 
     this._waypointEditView = null;
 
@@ -19,7 +20,11 @@ export default class NewWaypoint {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init() {
+  init(callback) {
+
+    this._destroyCallback = callback;
+    this._destroyCallback();
+
     if (this._waypointEditView !== null) {
       return;
     }
@@ -46,7 +51,10 @@ export default class NewWaypoint {
     if (this._waypointEditView === null) {
       return;
     }
-    this._newWaypointMode = NewWaypointMode.CLOSE;
+
+    if (this._destroyCallback !== null) {
+      this._destroyCallback();
+    }
 
     remove(this._waypointEditView);
     this._waypointEditView = null;
@@ -55,13 +63,12 @@ export default class NewWaypoint {
   }
 
   _handleFormSubmit(waypoint) {
+    this.destroy();
     this._changeData(
         UserAction.ADD_WAYPOINT,
         UpdateType.MINOR,
         Object.assign({id: generateId()}, waypoint)
     );
-
-    this.destroy();
   }
 
   _handleClickDelete() {

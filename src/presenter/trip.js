@@ -9,7 +9,7 @@ import NewWaypointPresenter from './new-waypoint.js';
 import WaypointPresenter from './waypoint.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {sortTime, sortPrice, getUniqueDates} from '../utils/waypoint.js';
-import {SortType, UserAction, UpdateType, FilterType, COUNT_WAYPOINTS} from '../consts.js';
+import {SortType, UserAction, UpdateType, COUNT_WAYPOINTS} from '../consts.js';
 import {filter} from '../utils/filter.js';
 
 export default class Trip {
@@ -38,20 +38,26 @@ export default class Trip {
     this._tripEventsContainer = this._tripContainer.querySelector(`.trip-events`);
 
     this._newWaypointPresenter = new NewWaypointPresenter(this._tripContainer, this._handleViewAction);
-
-    this._waypointsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
-
   }
 
   init() {
     this._renderTrip();
+    this._waypointsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
   }
 
-  createWaypoint() {
-    this._currenSortType = SortType.DEFAULT;
-    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._newWaypointPresenter.init();
+  destroy() {
+    this._clearTrip({resetSortType: true, tripEventsIsHidden: true});
+    this._waypointsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
+  createFormNewWaypoint(callback) {
+    this._newWaypointPresenter.init(callback);
+  }
+
+  destroyFormNewWaypoint() {
+    this._newWaypointPresenter.destroy();
   }
 
   _renderDays() {
@@ -84,6 +90,10 @@ export default class Trip {
     this._renderDay(uniqueDates);
 
     this._renderWaypoints(waypoints);
+    this._tripEventsContainer.classList.remove(`trip-events--hidden`);
+    if (this._tripContainer.querySelector(`.page-body__container--withoutAfter`)) {
+      this._tripContainer.querySelector(`.page-body__container--withoutAfter`).className = `page-body__container`;
+    }
   }
 
   _getWaypoints() {
@@ -127,11 +137,12 @@ export default class Trip {
         this._waypointPresenter[data.id].init(data);
         break;
       case UpdateType.MINOR:
-        this._сlearTrip();
+        this._clearTrip();
         this._renderTrip();
         break;
       case UpdateType.MAJOR:
-        this._сlearTrip(true);
+        this.destroyFormNewWaypoint();
+        this._clearTrip({resetSortType: true, tripEventsIsHidden: false});
         this._renderTrip();
         break;
     }
@@ -160,7 +171,7 @@ export default class Trip {
     this._waypointPresenter[waypoint.id] = waypointPresenter;
   }
 
-  _сlearTrip(resetSortType = false) {
+  _clearTrip({resetSortType = false, tripEventsIsHidden = false} = {}) {
     Object
       .values(this._waypointPresenter)
       .forEach((presenter) => presenter.destroy());
@@ -173,6 +184,15 @@ export default class Trip {
 
     if (resetSortType) {
       this._currenSortType = SortType.DEFAULT;
+    }
+
+
+    if (tripEventsIsHidden) {
+      this._tripEventsContainer.classList.add(`trip-events--hidden`);
+    }
+
+    if (this._tripContainer.querySelector(`.page-main .page-body__container`)) {
+      this._tripContainer.querySelector(`.page-main .page-body__container`).className = `page-body__container--withoutAfter`;
     }
   }
 
@@ -205,7 +225,7 @@ export default class Trip {
 
     this._currenSortType = sortType;
 
-    this._сlearTrip();
+    this._clearTrip();
     this._renderTrip();
   }
 }
