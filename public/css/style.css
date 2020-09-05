@@ -416,6 +416,9 @@ main {
   opacity: 0.89; }
   .trip-events__msg--hidden {
     display: none; }
+  .trip-events__msg--error {
+    color: red;
+  }
 
 .trip-events__list {
   padding: 0;
@@ -914,6 +917,11 @@ main {
   margin: 0;
   margin-bottom: 16px;
   margin-left: 20px;
+  font-size: 15px;
+  line-height: 18px; }
+
+.event__offers-description {
+  margin: 0;
   font-size: 15px;
   line-height: 18px; }
 

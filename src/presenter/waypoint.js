@@ -3,7 +3,7 @@ import WaypointView from '../view/waypoint.js';
 import {formateDateForSelector} from '../utils/date.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 import {UserAction, UpdateType} from '../consts.js';
-import {isDatesEqual} from '../utils/date.js';
+import {generateId} from '../utils/common.js';
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -11,13 +11,17 @@ const Mode = {
 };
 
 export default class Waypoint {
-  constructor(container, changeData, changeMode) {
+  constructor(container, changeData, changeMode, uniqueCitiesDatalist, offers, destinations, newWaypointPresenter) {
     this._container = container;
     this._waypointComponent = null;
     this._waypointEditComponent = null;
     this._changeData = changeData;
     this._changeMode = changeMode;
     this._mode = Mode.DEFAULT;
+    this._uniqueCitiesDatalist = uniqueCitiesDatalist;
+    this._offers = offers;
+    this._destinations = destinations;
+    this._newWaypointPresenter = newWaypointPresenter;
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._handleEditClick = this._handleEditClick.bind(this);
@@ -31,7 +35,7 @@ export default class Waypoint {
 
     const prevWaypointEditComponent = this._waypointEditComponent;
     const prevWaypointComponent = this._waypointComponent;
-    this._waypointEditComponent = new EditEventView(false, waypoint);
+    this._waypointEditComponent = new EditEventView(waypoint, false, this._uniqueCitiesDatalist, this._offers, this._destinations);
     this._waypointComponent = new WaypointView(waypoint);
 
     const time = formateDateForSelector(waypoint.startDate);
@@ -82,6 +86,7 @@ export default class Waypoint {
     document.addEventListener(`keydown`, this._onEscKeyDown);
     this._changeMode();
     this._mode = Mode.EDITING;
+    this._newWaypointPresenter.destroy();
   }
 
   _replaceFormToCard() {
@@ -105,12 +110,10 @@ export default class Waypoint {
   }
 
   _handleFormSubmit(waypointChange) {
-    const isMinorUpdate = !isDatesEqual(this._waypoint.startDate, waypointChange.startDate);
-
     this._changeData(
         UserAction.UPDATE_WAYPOINT,
-        isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
-        waypointChange
+        UpdateType.MINOR,
+        Object.assign({id: generateId()}, waypointChange)
     );
     this._replaceFormToCard();
   }

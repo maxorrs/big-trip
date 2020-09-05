@@ -1,5 +1,7 @@
 const path = require('path');
-const MomentLocalesPlugin = require(`moment-locales-webpack-plugin`);
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+const MomentTimezoneDataPlugin = require('moment-timezone-data-webpack-plugin');
+
 
 module.exports = {
   mode: 'development',
@@ -22,6 +24,9 @@ module.exports = {
     ]
   },
   plugins: [
+    new MomentTimezoneDataPlugin({
+      matchZones: /^America/
+    }),
     new MomentLocalesPlugin()
   ]
 };

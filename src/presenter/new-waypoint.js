@@ -2,15 +2,13 @@ import WaypointEditView from '../view/edit-event.js';
 import {generateId} from '../utils/common.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {UserAction, UpdateType} from '../consts.js';
-import {NewWaypointMode} from '../utils/waypoint.js';
-
+import {getBlankWaypoint} from '../utils/event.js';
 
 export default class NewWaypoint {
   constructor(tripMainContainer, changeData) {
     this._tripMainContainer = tripMainContainer;
     this._changeData = changeData;
 
-    this._newWaypointMode = NewWaypointMode.CLOSE;
     this._destroyCallback = null;
 
     this._waypointEditView = null;
@@ -20,8 +18,7 @@ export default class NewWaypoint {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(callback) {
-
+  init(callback, uniqueCitiesDatalist, offers, destinations) {
     this._destroyCallback = callback;
     this._destroyCallback();
 
@@ -29,11 +26,14 @@ export default class NewWaypoint {
       return;
     }
 
-    this._waypointEditView = new WaypointEditView(true);
+    this._uniqueCitiesDatalist = uniqueCitiesDatalist;
+    this._offers = offers;
+    this._destinations = destinations;
+    const blankWaypoint = getBlankWaypoint(this._offers);
+    const isNewWaypoint = true;
+    this._waypointEditView = new WaypointEditView(blankWaypoint, isNewWaypoint, this._uniqueCitiesDatalist, this._offers, this._destinations);
     this._waypointEditView.setFormSubmitHandler(this._handleFormSubmit);
     this._waypointEditView.setClickDeleteHandler(this._handleClickDelete);
-
-    this._newWaypointMode = NewWaypointMode.OPEN;
 
     const container = this._tripMainContainer.querySelector(`.trip-days`);
 
@@ -67,7 +67,7 @@ export default class NewWaypoint {
     this._changeData(
         UserAction.ADD_WAYPOINT,
         UpdateType.MINOR,
-        Object.assign({id: generateId()}, waypoint)
+        Object.assign({id: generateId().toString()}, waypoint)
     );
   }
 
