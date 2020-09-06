@@ -3,11 +3,16 @@ import WaypointView from '../view/waypoint.js';
 import {formateDateForSelector} from '../utils/date.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 import {UserAction, UpdateType} from '../consts.js';
-import {generateId} from '../utils/common.js';
 
 const Mode = {
   DEFAULT: `DEFAULT`,
   EDITING: `EDITING`
+};
+
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
 };
 
 export default class Waypoint {
@@ -60,6 +65,7 @@ export default class Waypoint {
 
     if (this._mode === Mode.EDITING) {
       replace(this._waypointEditComponent, prevWaypointEditComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     if (this._mode === Mode.DEFAULT) {
@@ -78,6 +84,35 @@ export default class Waypoint {
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._replaceFormToCard();
+    }
+  }
+
+  setViewState(state) {
+    const resetFormState = () => {
+      this._waypointEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._waypointEditComponent.updateData({
+          isDisabled: true,
+          isSaving: true
+        });
+        break;
+      case State.DELETING:
+        this._waypointEditComponent.updateData({
+          isDisabled: true,
+          isDeleting: true
+        });
+        break;
+      case State.ABORTING:
+        this._waypointComponent.shake(resetFormState);
+        this._waypointEditComponent.shake(resetFormState);
+        break;
     }
   }
 
@@ -113,9 +148,8 @@ export default class Waypoint {
     this._changeData(
         UserAction.UPDATE_WAYPOINT,
         UpdateType.MINOR,
-        Object.assign({id: generateId()}, waypointChange)
+        waypointChange
     );
-    this._replaceFormToCard();
   }
 
   _handleDeleteClick(waypoint) {

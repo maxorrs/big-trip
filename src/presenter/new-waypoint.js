@@ -1,5 +1,4 @@
 import WaypointEditView from '../view/edit-event.js';
-import {generateId} from '../utils/common.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {UserAction, UpdateType} from '../consts.js';
 import {getBlankWaypoint} from '../utils/event.js';
@@ -32,6 +31,7 @@ export default class NewWaypoint {
     const blankWaypoint = getBlankWaypoint(this._offers);
     const isNewWaypoint = true;
     this._waypointEditView = new WaypointEditView(blankWaypoint, isNewWaypoint, this._uniqueCitiesDatalist, this._offers, this._destinations);
+
     this._waypointEditView.setFormSubmitHandler(this._handleFormSubmit);
     this._waypointEditView.setClickDeleteHandler(this._handleClickDelete);
 
@@ -58,17 +58,37 @@ export default class NewWaypoint {
 
     remove(this._waypointEditView);
     this._waypointEditView = null;
+    this._destroyCallback = null;
 
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  setSaving() {
+    this._waypointEditView.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._waypointEditView.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._waypointEditView.shake(resetFormState);
+  }
+
   _handleFormSubmit(waypoint) {
-    this.destroy();
     this._changeData(
         UserAction.ADD_WAYPOINT,
         UpdateType.MINOR,
-        Object.assign({id: generateId().toString()}, waypoint)
+        waypoint
     );
+    this._destroyCallback = null;
   }
 
   _handleClickDelete() {

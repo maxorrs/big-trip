@@ -8,7 +8,7 @@ import NoWaypointsView from '../view/no-waypoints.js';
 import LoadingView from '../view/loading.js';
 import ErrorView from '../view/error.js';
 import NewWaypointPresenter from './new-waypoint.js';
-import WaypointPresenter from './waypoint.js';
+import WaypointPresenter, {State as WaypointPresenterViewState} from './waypoint.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {sortTime, sortPrice, getUniqueDates} from '../utils/waypoint.js';
 import {SortType, UserAction, UpdateType} from '../consts.js';
@@ -23,6 +23,7 @@ export default class Trip {
     this._currenSortType = SortType.DEFAULT;
     this._waypointPresenter = {};
     this._isLoading = true;
+    this._isCreatedWaypoint = false;
     this._isError = false;
     this._api = api;
     this._uniqueCitiesDatalist = [];
@@ -100,6 +101,7 @@ export default class Trip {
   }
 
   createFormNewWaypoint(callback) {
+    remove(this._noWaypointsComponent);
     this._newWaypointPresenter.init(callback, this._uniqueCitiesDatalist, this._offers, this._destinations);
   }
 
@@ -132,6 +134,8 @@ export default class Trip {
       return;
     }
 
+    this._tripEventsContainer.classList.remove(`trip-events--hidden`);
+
     this._getOffers();
     this._getDestinations();
 
@@ -146,12 +150,14 @@ export default class Trip {
       return;
     }
 
+    remove(this._noWaypointsComponent);
+
     this._renderSort();
     this._renderDays();
     this._renderDay(uniqueDates);
 
     this._renderWaypoints(waypoints);
-    this._tripEventsContainer.classList.remove(`trip-events--hidden`);
+
     if (this._tripContainer.querySelector(`.page-body__container--withoutAfter`)) {
       this._tripContainer.querySelector(`.page-body__container--withoutAfter`).className = `page-body__container`;
     }
@@ -181,15 +187,34 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_WAYPOINT:
-        this._api.updateWaypoint(update).then((response) => {
-          this._waypointsModel.updateWaypoint(updateType, response);
-        });
+        this._waypointPresenter[update.id].setViewState(WaypointPresenterViewState.SAVING);
+        this._api.updateWaypoint(update)
+          .then((response) => {
+            this._waypointsModel.updateWaypoint(updateType, response);
+          })
+          .catch(() => {
+            this._waypointPresenter[update.id].setViewState(WaypointPresenterViewState.ABORTING);
+          });
         break;
       case UserAction.ADD_WAYPOINT:
-        this._waypointsModel.addWaypoint(updateType, update);
+        this._newWaypointPresenter.setSaving();
+        this._api.addWaypoint(update)
+          .then((response) => {
+            this._waypointsModel.addWaypoint(updateType, response);
+          })
+          .catch(() => {
+            this._newWaypointPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_WAYPOINT:
-        this._waypointsModel.deleteWaypoint(updateType, update);
+        this._waypointPresenter[update.id].setViewState(WaypointPresenterViewState.DELETING);
+        this._api.deleteWaypoint(update)
+          .then(() => {
+            this._waypointsModel.deleteWaypoint(updateType, update);
+          })
+          .catch(() => {
+            this._waypointPresenter[update.id].setViewState(WaypointPresenterViewState.ABORTING);
+          });
         break;
     }
   }

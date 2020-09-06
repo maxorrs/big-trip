@@ -12,13 +12,15 @@ import FilterModel from './model/filter.js';
 import StatisticsView from './view/statistics.js';
 import Api from './api.js';
 
-const AUTHORIZATION = `Basic oiafsjfl`;
-const END_POINT = `https://12.ecmascript.pages.academy/big-trip`;
+const ApiConfig = {
+  AUTHORIZATION: `Basics s90dugjni2o3f`,
+  END_POINT: `https://12.ecmascript.pages.academy/big-trip`
+};
 
 const sitePageBody = document.querySelector(`.page-body`);
 const sitePageBodyContainer = document.querySelector(`.page-body__page-main .page-body__container`);
   
-const api = new Api(END_POINT, AUTHORIZATION);
+const api = new Api(ApiConfig.END_POINT, ApiConfig.AUTHORIZATION);
 
 const waypointsModel = new WaypointsModel();
 const extraModel = new ExtraModel();
@@ -41,13 +43,16 @@ const handleSiteMenuClick = (menuItem) => {
       
       break;
     case MenuItem.STATS:
-      infoPresenter.destroyFormNewWaypoint();
-      filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-      tripPresenter.destroy();
-      infoPresenter.setMenuItemStats();
-      if (statisticsComponent === null) {
-        statisticsComponent = new StatisticsView(waypointsModel.getWaypoints());
-        render(sitePageBodyContainer, RenderPosition.BEFOREEND, statisticsComponent);
+      const waypointCounts = waypointsModel.getWaypoints().length;
+      if (waypointCounts > 0) {
+        infoPresenter.destroyFormNewWaypoint();
+        filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+        tripPresenter.destroy();
+        infoPresenter.setMenuItemStats();
+        if (statisticsComponent === null) {
+          statisticsComponent = new StatisticsView(waypointsModel.getWaypoints());
+          render(sitePageBodyContainer, RenderPosition.BEFOREEND, statisticsComponent);
+        }  
       }
       
       break;
