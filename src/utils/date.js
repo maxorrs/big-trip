@@ -1,15 +1,12 @@
 import {Tense} from '../consts.js';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
-export const PruningDate = {
-  VALUE_FROM_MONTH: 5,
-  VALUE_FROM_DATE: 8,
-  LENGTH_SHORT: 2,
-  LENGTH_FULL_DATE: 10
+const momentTZ = (time) => {
+  return moment(time).tz(`America/Danmarkshavn`);
 };
 
 export const formatDateForEditComponent = (date) => {
-  return moment(date).format(`DD/MM/YY HH:mm`);
+  return momentTZ(date).format(`DD/MM/YY HH:mm`);
 };
 
 export const formatDateForDayContainer = (date) => {
@@ -17,28 +14,28 @@ export const formatDateForDayContainer = (date) => {
 };
 
 export const formatFullDateForAttr = (date) => {
-  return moment(date).format(`DD-MM-YY`);
+  return momentTZ(date).format(`DD-MM-YY`);
 };
 
 export const formatTimeForWaypoint = (time) => {
-  return moment(time).format(`HH:mm`);
+  return momentTZ(time).format(`HH:mm`);
 };
 
 export const formatDateForWaypoint = (date) => {
-  return moment(date).format(`DD-MM-YYTHH:mm`);
+  return momentTZ(date).format(`DD-MM-YYTHH:mm`);
 };
 
 export const formateDateForSelector = (date) => {
-  return moment(date).format(`YYYY-MM-DD`);
+  return momentTZ(date).format(`YYYY-MM-DD`);
 };
 
 export const getTimeRange = (startDate, endDate) => {
-  const startTimeInMs = new Date(startDate).getTime();
-  const endTimeInMs = new Date(endDate).getTime();
-  const range = moment.duration(endTimeInMs - startTimeInMs);
+  const start = moment(startDate);
+  const end = moment(endDate);
+  const range = moment.duration(end - start);
 
   const duration = {
-    days: range.days(),
+    days: end.diff(start, `days`),
     hours: range.hours(),
     minutes: range.minutes()
   };
@@ -55,5 +52,5 @@ export const isDatesEqual = (firstDate, secondDate) => {
 };
 
 export const isFutureOrPast = (date, time) => {
-  return time === Tense.FUTURE ? moment(date).isBefore() : moment(date).isAfter();
+  return time === Tense.FUTURE ? moment(date).isAfter() : moment(date).isBefore();
 };

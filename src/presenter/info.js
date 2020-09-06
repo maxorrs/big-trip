@@ -19,6 +19,10 @@ export default class Info {
     this._tripAddButtonComponent = null;
     this._tripInfoComponent = null;
 
+    this._uniqueDates = [];
+    this._citiesForInfo = [];
+    this._amount = 0;
+
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleWaypointNewForm = this._handleWaypointNewForm.bind(this);
 
@@ -26,9 +30,10 @@ export default class Info {
   }
 
   init() {
+    this._getInfo();
+    this._renderInfo();
     this._renderButton();
     this._renderTabs();
-    this._getInfo();
     this._handlers();
   }
 
@@ -51,16 +56,14 @@ export default class Info {
 
   _getInfo() {
     const waypoints = this._waypointsModel.getWaypoints();
-    const uniqueDates = getUniqueDates(waypoints);
-    const citiesForInfo = getCitiesForInfo(waypoints);
-    const amount = getFinalAmount(waypoints);
-
-    this._renderInfo(uniqueDates, citiesForInfo, amount);
+    this._uniqueDates = getUniqueDates(waypoints);
+    this._citiesForInfo = getCitiesForInfo(waypoints);
+    this._amount = getFinalAmount(waypoints);
   }
 
-  _renderInfo(uniqueDates, citiesForInfo, amount) {
+  _renderInfo() {
     const prevInfoComponent = this._tripInfoComponent;
-    this._tripInfoComponent = new TripInfoView(uniqueDates, citiesForInfo, amount);
+    this._tripInfoComponent = new TripInfoView(this._uniqueDates, this._citiesForInfo, this._amount);
 
     if (prevInfoComponent === null) {
       render(this._mainContainer, RenderPosition.AFTERBEGIN, this._tripInfoComponent);

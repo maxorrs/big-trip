@@ -1,23 +1,12 @@
 
 import SmartView from './smart.js';
-import {createPhoto, getDatalist} from '../utils/event.js';
+import {createPhoto, getDatalist, getBlankWaypoint, updateOffers, getConcatNameOffers} from '../utils/event.js';
 import {formatDateForEditComponent} from '../utils/date.js';
-import {types, getType, getOffers, generateDescription} from '../utils/waypoint.js';
+import {types, getType, getOffers, getDestinationInfo} from '../utils/waypoint.js';
+import {ucFirst} from '../utils/common.js';
 import flatpickr from 'flatpickr';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
-
-const BLANK_WAYPOINT = {
-  type: `Taxi`,
-  city: ``,
-  price: ``,
-  offers: getOffers(`Taxi`, true),
-  description: ``,
-  photos: [],
-  startDate: new Date(),
-  endDate: new Date(),
-  isFavorite: false
-};
 
 const createControlsTemplate = (isFavorite, isNew) => {
   return (
@@ -46,12 +35,12 @@ const createControlsTemplate = (isFavorite, isNew) => {
 
 const createTypeActivityTemplate = (data) => {
   return (Object
-    .values(types.activity)
+    .values(types.transport)
     .map((activity) => {
       return (
         `<div class="event__type-item">
-          <input id="event-type-${activity}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activity}" ${data.type === activity ? `checked` : ``}>
-          <label class="event__type-label  event__type-label--${activity.toLowerCase()}" for="event-type-${activity}-1">${activity}</label>
+          <input id="event-type-${activity}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activity}" ${data.type.toLowerCase() === activity ? `checked` : ``}>
+          <label class="event__type-label  event__type-label--${activity}" for="event-type-${activity}-1">${ucFirst(activity)}</label>
         </div>`
       );
     })
@@ -62,45 +51,98 @@ const createTypeTransferTemplate = (data) => {
   return (Object.
     values(types.transfer)
     .map((transfer) => {
-      const type = transfer === `Check` ? `Check-in` : transfer;
+      const type = transfer === `check` ? `check-in` : transfer;
       return (
         `<div class="event__type-item">
           <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${data.type === transfer ? `checked` : ``}>
-          <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type}-1">${transfer}</label>
+          <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${ucFirst(transfer)}</label>
         </div>`
       );
     })
   ).join(``);
 };
 
-const createOffersTemplate = (data) => {
-  return (Object
-    .values(data.offers)
-    .map((item) => {
-      return (
-        `<div class="event__offer-selector">
-          <input class="event__offer-checkbox visually-hidden" id="${item.name}-1" type="checkbox" name="${item.name}" ${item.isEnabled ? `checked` : ``}>
-            <label class="event__offer-label" for="${item.name}-1">
-              <span class="event__offer-title">${item.description}</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">${item.price}
-              </span>
-          </label>
-        </div>`
-      );
-    }).join(``)
-  );
+const createOffers = (data) => {
+  if (data) {
+    return (Object
+      .values(data.offers)
+      .map((item) => {
+        const nameForAttr = getConcatNameOffers(item.title);
+        return (
+          `<div class="event__offer-selector">
+            <input class="event__offer-checkbox visually-hidden" id="${nameForAttr}-1" type="checkbox" name="${item.title}" ${item.isEnabled ? `checked` : ``}>
+              <label class="event__offer-label" for="${nameForAttr}-1">
+                <span class="event__offer-title">${item.title}</span>
+                  &plus;
+                  &euro;&nbsp;<span class="event__offer-price">${item.price}
+                </span>
+            </label>
+          </div>`
+        );
+      }).join(``)
+    );
+  }
+
+  return ``;
 };
 
-const createEventTemplate = (data = BLANK_WAYPOINT, isNewWaypoint) => {
-  const {city, isFavorite, price, photos, description, startDate, endDate, type} = data;
-  const photosTemplate = createPhoto(photos);
+const createDestinationInfoTemplate = (data = {}) => {
+  const {pictures, description} = data.destination;
+  const photosTemplate = createPhoto(pictures);
+
+  if (description && pictures) {
+    return (
+      `<section class="event__section  event__section--destination">
+        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+
+        <p class="event__destination-description">
+          ${description}
+        </p>
+        <div class="event__photos-container">
+          <div class="event__photos-tape">
+            ${photosTemplate}
+          </div>
+        </div>
+      </section>
+    `);
+  }
+
+  return ``;
+};
+
+const createOffersTemplate = (data = {}) => {
+  const offers = createOffers(data);
+  if (offers) {
+    return (
+      `<section class="event__section  event__section--offers">
+        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+        <div class="event__available-offers">
+          ${offers}
+        </div>
+      </section>`
+    );
+  }
+
+  return ``;
+};
+
+const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDatalist = []) => {
+  const {isFavorite, price, startDate, endDate, type} = data;
+  const city = data.destination.name;
+
   const startTimeValue = formatDateForEditComponent(startDate);
   const endTimeValue = formatDateForEditComponent(endDate);
-  const typeForAttr = type === `Check` ? `check-in` : type.toLowerCase();
+
+  const typeForAttr = type === `сheck` ? `check-in` : type;
+
   const typeText = getType(type);
-  const datalist = getDatalist();
-  const isNew = isNewWaypoint;
+  const datalist = getDatalist(citiesDatalist);
+
+  const destinationInfoTemplate = createDestinationInfoTemplate(data);
+  const offertsTemplate = createOffersTemplate(data);
+  const typeActivityTemplate = createTypeActivityTemplate(data);
+  const typeTransferTemplate = createTypeTransferTemplate(data);
+  const controlsTemplate = createControlsTemplate(isFavorite, isNewWaypoint);
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -115,12 +157,12 @@ const createEventTemplate = (data = BLANK_WAYPOINT, isNewWaypoint) => {
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Transfer</legend>
-            ${createTypeActivityTemplate(data)}
+            ${typeActivityTemplate}
           </fieldset>
 
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Activity</legend>
-            ${createTypeTransferTemplate(data)}
+            ${typeTransferTemplate}
           </fieldset>
         </div>
       </div>
@@ -155,40 +197,28 @@ const createEventTemplate = (data = BLANK_WAYPOINT, isNewWaypoint) => {
         <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}" required>
       </div>
 
-      ${createControlsTemplate(isFavorite, isNew)}
+      ${controlsTemplate}
       
     </header>
+    
     <section class="event__details">
-      <section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-        <div class="event__available-offers">
-          ${createOffersTemplate(data)}
-        </div>
-      </section>
-
-      <section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        ${description ? `<p class="event__destination-description">${description}</p>` : ``}
-
-        <div class="event__photos-container">
-          <div class="event__photos-tape">
-            ${photosTemplate}
-          </div>
-        </div>
-      </section>
+        ${offertsTemplate}
+        ${destinationInfoTemplate}
     </section>
   </form>`
   );
 };
 
 export default class EditEvent extends SmartView {
-  constructor(isNewWaypoint = false, waypoint = BLANK_WAYPOINT) {
+  constructor(waypoint, isNewWaypoint = false, uniqueCitiesDatalist, offers, destinations) {
     super();
     this._data = EditEvent.parseWaypointToData(waypoint);
     this._startDatepicker = null;
     this._endDatepicker = null;
     this._isNewWaypoint = isNewWaypoint;
+    this._uniqueCitiesDatalist = uniqueCitiesDatalist;
+    this._offers = offers;
+    this._destinatons = destinations;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._clickCloseHandler = this._clickCloseHandler.bind(this);
@@ -197,6 +227,7 @@ export default class EditEvent extends SmartView {
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._clickDeleteHandler = this._clickDeleteHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
+    this._offerChangeHandler = this._offerChangeHandler.bind(this);
 
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._endDateChangeHandler = this._endDateChangeHandler.bind(this);
@@ -224,13 +255,15 @@ export default class EditEvent extends SmartView {
       this._startDatepicker = null;
     }
 
+    const startDate = formatDateForEditComponent(this._data.startDate);
+
     this._startDatepicker = flatpickr(
         this.getElement().querySelector(`#event-start-time-1`),
         {
           dateFormat: `d/m/y H:i`,
           enableTime: true,
           time24hr: true,
-          defaultDate: this._data.startDate,
+          defaultDate: startDate,
           onChange: this._startDateChangeHandler
         }
     );
@@ -241,6 +274,9 @@ export default class EditEvent extends SmartView {
       this._endDatepicker.destroy();
       this._endDatepicker = null;
     }
+    const startDate = formatDateForEditComponent(this._data.startDate);
+    const endDate = formatDateForEditComponent(this._data.endDate);
+
 
     this._endDatepicker = flatpickr(
         this.getElement().querySelector(`#event-end-time-1`),
@@ -248,8 +284,8 @@ export default class EditEvent extends SmartView {
           dateFormat: `d/m/y H:i`,
           enableTime: true,
           time24hr: true,
-          defaultDate: this._data.endDate,
-          minDate: this._data.startDate,
+          defaultDate: endDate,
+          minDate: startDate,
           onChange: this._endDateChangeHandler
         }
     );
@@ -258,13 +294,13 @@ export default class EditEvent extends SmartView {
   _startDateChangeHandler(selectedDates) {
     this.updateData({
       startDate: new Date(selectedDates[0]).toISOString()
-    }, true);
+    });
   }
 
   _endDateChangeHandler(selectedDates) {
     this.updateData({
       endDate: new Date(selectedDates[0]).toISOString()
-    }, true);
+    });
   }
 
   static parseWaypointToData(waypoint) {
@@ -277,15 +313,11 @@ export default class EditEvent extends SmartView {
 
   static parseDataToWaypoint(data) {
     data = Object.assign({}, data);
-
     return data;
   }
 
   reset(waypoint) {
-    this
-      .updateData(
-          EditEvent.parseWaypointToData(waypoint)
-      );
+    this.updateData(EditEvent.parseWaypointToData(waypoint));
   }
 
   _formSubmitHandler(evt) {
@@ -342,11 +374,16 @@ export default class EditEvent extends SmartView {
     }
 
     this.getElement().querySelector(`.event__input--price`).addEventListener(`input`, this._priceInputHandler);
+    const offers = this.getElement().querySelectorAll(`.event__offer-selector`);
+
+    for (const offer of offers) {
+      offer.addEventListener(`click`, this._offerChangeHandler);
+    }
 
   }
 
   getTemplate() {
-    return createEventTemplate(this._data, this._isNewWaypoint);
+    return createEventTemplate(this._data, this._isNewWaypoint, this._uniqueCitiesDatalist);
   }
 
   _favoriteHandler(evt) {
@@ -357,13 +394,10 @@ export default class EditEvent extends SmartView {
   }
 
   _destinationInputHandler(evt) {
-
     evt.preventDefault();
 
-    // Завел пока даталист с городами через костыль, потому что не понимаю, как будет приходить список с сервера.
-    const uniqueCitiesDatalist = new Set([`Amsterdam`, `Geneva`, `Madrid`, `Marrakesh`, `Warsaw`]);
-
-    const regExpDatalist = new RegExp(Array.from(uniqueCitiesDatalist).join(`$|`), `y`);
+    const uniqueCities = new Set(this._uniqueCitiesDatalist);
+    const regExpDatalist = new RegExp(Array.from(uniqueCities).join(`$|`), `y`);
 
     if (!evt.target.value) {
       evt.target.setCustomValidity(`Select a destination from the list.`);
@@ -374,8 +408,8 @@ export default class EditEvent extends SmartView {
     }
 
     this.updateData({
-      city: evt.target.value
-    }, true);
+      destination: getDestinationInfo(this._destinatons, evt.target.value)
+    });
   }
 
   _typeChangeHandler(evt) {
@@ -383,8 +417,7 @@ export default class EditEvent extends SmartView {
 
     this.updateData({
       type: evt.target.value,
-      offers: getOffers(evt.target.value, true),
-      description: generateDescription()
+      offers: getOffers(this._offers, evt.target.value),
     });
   }
 
@@ -404,5 +437,24 @@ export default class EditEvent extends SmartView {
     this.updateData({
       price: +evt.target.value
     }, true);
+  }
+
+  _offerChangeHandler(evt) {
+    let nameInput;
+
+    if (evt.target.tagName === `LABEL`) {
+      nameInput = evt.target.previousElementSibling.name;
+    } else if (evt.target.tagName === `SPAN`) {
+      nameInput = evt.target.parentElement.previousElementSibling.name;
+    } else {
+      return;
+    }
+
+    const allOffers = Object.values(this._data.offers);
+    const newOffers = updateOffers(allOffers, nameInput);
+
+    this.updateData({
+      offers: newOffers
+    });
   }
 }

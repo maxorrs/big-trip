@@ -3,13 +3,13 @@ import {getType} from '../utils/waypoint.js';
 import {formatTimeForWaypoint, getTimeRange, formatDateForWaypoint} from '../utils/date.js';
 import AbstractView from './abstract.js';
 
-const createEnabledOffersTemplate = (enabledOffers) => {
+const createOffersDescriptionTemplate = (offers) => {
   return (Object
-    .values(enabledOffers)
+    .values(offers)
     .map((offer) => {
       return (
         `<li class="event__offer">
-          <span class="event__offer-title">${offer.description}</span>
+          <span class="event__offer-title">${offer.title}</span>
             &plus;
             &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
         </li>`
@@ -26,18 +26,17 @@ const createWaypointTemplate = (waypoint) => {
   const endDate = formatTimeForWaypoint(waypoint.endDate);
 
   const diffTime = getTimeRange(waypoint.startDate, waypoint.endDate);
-  const nameImage = waypoint.type === `Check` ? `check-in` : waypoint.type.toLowerCase();
+  const nameImage = waypoint.type === `check` ? `check-in` : waypoint.type;
+
   const type = getType(waypoint.type);
   const price = waypoint.price;
+  const destinationName = waypoint.destination.name;
 
-  const enabledOffers = Object
+  const offersDescription = Object
     .values(waypoint.offers)
-    .filter((it) => {
-      return it.isEnabled;
-    });
-
-  const enabledOffersDescription = enabledOffers
     .slice(0, COUNT_OFFERS);
+
+  const templateOffersDescription = createOffersDescriptionTemplate(offersDescription);
 
   return (
     `<li class="trip-events__item">
@@ -45,7 +44,7 @@ const createWaypointTemplate = (waypoint) => {
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/${nameImage}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${type} ${waypoint.city}</h3>
+      <h3 class="event__title">${type} ${destinationName}</h3>
 
       <div class="event__schedule">
         <p class="event__time">
@@ -62,7 +61,7 @@ const createWaypointTemplate = (waypoint) => {
 
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${createEnabledOffersTemplate(enabledOffersDescription)}
+        ${templateOffersDescription}
       </ul>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>

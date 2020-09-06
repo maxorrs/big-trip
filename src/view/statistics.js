@@ -6,19 +6,21 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 const BAR_HEIGHT = 55;
 
 const renderMoneyChart = (moneyCtx, data) => {
-  const {labelsStat, valuesStat} = getStatsForMoney(data);
-  moneyCtx.height = BAR_HEIGHT * labelsStat.length;
+  const {labelsData, valuesData} = getStatsForMoney(data);
+  moneyCtx.height = BAR_HEIGHT * labelsData.length;
 
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: labelsStat,
+      labels: labelsData,
       datasets: [{
-        data: valuesStat,
+        data: valuesData,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        anchor: `start`,
+        barThickness: 44,
+        minBarLength: 50
       }]
     },
     options: {
@@ -51,7 +53,6 @@ const renderMoneyChart = (moneyCtx, data) => {
             display: false,
             drawBorder: false
           },
-          barThickness: 44,
         }],
         xAxes: [{
           ticks: {
@@ -61,8 +62,7 @@ const renderMoneyChart = (moneyCtx, data) => {
           gridLines: {
             display: false,
             drawBorder: false
-          },
-          minBarLength: 50
+          }
         }],
       },
       legend: {
@@ -76,19 +76,21 @@ const renderMoneyChart = (moneyCtx, data) => {
 };
 
 const renderTransportChart = (transportCtx, data) => {
-  const {labelsStat, valuesStat} = getStatsForTransport(data);
-  transportCtx.height = BAR_HEIGHT * labelsStat.length;
+  const {labelsData, valuesData} = getStatsForTransport(data);
+  transportCtx.height = BAR_HEIGHT * labelsData.length;
 
   return new Chart(transportCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: labelsStat,
+      labels: labelsData,
       datasets: [{
-        data: valuesStat,
+        data: valuesData,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        anchor: `start`,
+        barThickness: 44,
+        minBarLength: 50
       }]
     },
     options: {
@@ -120,8 +122,7 @@ const renderTransportChart = (transportCtx, data) => {
           gridLines: {
             display: false,
             drawBorder: false
-          },
-          barThickness: 44,
+          }
         }],
         xAxes: [{
           ticks: {
@@ -131,8 +132,7 @@ const renderTransportChart = (transportCtx, data) => {
           gridLines: {
             display: false,
             drawBorder: false
-          },
-          minBarLength: 50
+          }
         }],
       },
       legend: {
@@ -146,19 +146,21 @@ const renderTransportChart = (transportCtx, data) => {
 };
 
 const renderTimeSpentChart = (timeSpentCtx, data) => {
-  const {labelsStat, valuesStat} = getStatsForTimeSpent(data);
-  timeSpentCtx.height = BAR_HEIGHT * labelsStat.length;
+  const {labelsData, valuesData} = getStatsForTimeSpent(data);
+  timeSpentCtx.height = BAR_HEIGHT * labelsData.length;
 
   return new Chart(timeSpentCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: labelsStat,
+      labels: labelsData,
       datasets: [{
-        data: valuesStat,
+        data: valuesData,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
+        anchor: `start`,
+        barThickness: 44,
+        minBarLength: 50
       }]
     },
     options: {
@@ -190,8 +192,7 @@ const renderTimeSpentChart = (timeSpentCtx, data) => {
           gridLines: {
             display: false,
             drawBorder: false
-          },
-          barThickness: 44,
+          }
         }],
         xAxes: [{
           ticks: {
@@ -201,8 +202,7 @@ const renderTimeSpentChart = (timeSpentCtx, data) => {
           gridLines: {
             display: false,
             drawBorder: false
-          },
-          minBarLength: 50
+          }
         }],
       },
       legend: {

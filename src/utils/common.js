@@ -6,3 +6,11 @@ export const getRandomInteger = (a = 0, b = 1) => {
 };
 
 export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
+export const ucFirst = (str) => {
+  if (!str) {
+    return str;
+  }
+
+  return str[0].toUpperCase() + str.slice(1);
+};

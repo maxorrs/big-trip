@@ -1,4 +1,4 @@
-import {getRandomInteger} from './common.js';
+import {ucFirst} from './common.js';
 import moment from 'moment';
 
 const MAX_COUNT_CITY_INFO = 3;
@@ -20,21 +20,16 @@ export const getSumWaypoint = (waypoint) => {
 };
 
 export const getType = (type) => {
-  let result = ``;
-  const typeChange = type === `Check-in` ? `Check` : type;
+  const typeChange = type === `check-in` ? `check` : type;
 
   switch (typeChange) {
-    case `Check`:
-    case `Sightseeing`:
-    case `Restaurant`:
-      result = `${typeChange} in`;
-      break;
+    case `check`:
+    case `sightseeing`:
+    case `restaurant`:
+      return `${ucFirst(typeChange)} in`;
     default:
-      result = `${typeChange} to`;
-      break;
+      return `${ucFirst(typeChange)} to`;
   }
-
-  return result;
 };
 
 export const defaultSortWaypoints = (a, b) => {
@@ -77,139 +72,35 @@ export const sortPrice = (a, b) => {
 };
 
 export const types = {
-  activity: [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`],
-  transfer: [`Check`, `Sightseeing`, `Restaurant`]
+  transport: [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`],
+  transfer: [`check`, `sightseeing`, `restaurant`]
 };
 
-export const getOffers = (type, update) => {
-  type = type === `Check-in` ? `Check` : type;
+export const getOffers = (offers, type) => {
+  const offersList = offers;
 
-  let flagIsEnabled = Boolean(getRandomInteger(0, 1));
+  const currentOffers = Object
+    .values(offersList)
+    .filter((item) => item.type === type)
+    .map((item) => item.offers);
 
-  if (update) {
-    flagIsEnabled = false;
-  }
+  return currentOffers[0];
+};
 
-  const offers = {
-    'Bus': {
-      '1-bus': {
-        description: `Bus-1`,
-        name: `event-offer-bus-2`,
-        price: 400,
-        isEnabled: flagIsEnabled
-      },
-      '2-bus': {
-        description: `Bus-2`,
-        name: `event-offer-bus-1`,
-        price: 2400,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Taxi': {
-      '1-taxi': {
-        description: `Taxi-1`,
-        name: `event-offer-taxi-2`,
-        price: 30,
-        isEnabled: flagIsEnabled
-      },
-      '2-taxi': {
-        description: `Taxi-2`,
-        name: `event-offer-taxi-1`,
-        price: 900,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Train': {
-      'luggage': {
-        description: `Train-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      },
-      'comfort': {
-        description: `Train-2`,
-        name: `event-offer-comfort`,
-        price: 100,
-        isEnabled: flagIsEnabled
-      },
-    },
-    'Ship': {
-      'luggage': {
-        description: `Ship-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Transport': {
-      'luggage': {
-        description: `Transport-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Drive': {
-      'luggage': {
-        description: `Drive-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Flight': {
-      'luggage': {
-        description: `Flight-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Check': {
-      'luggage': {
-        description: `Check-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Sightseeing': {
-      'luggage': {
-        description: `Sightseeing-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    },
-    'Restaurant': {
-      'luggage': {
-        description: `Restaurant-1`,
-        name: `event-offer-luggage`,
-        price: 40,
-        isEnabled: flagIsEnabled
-      }
-    }
+export const getDestinationInfo = (destinations, type) => {
+  const blank = {
+    name: ``,
+    description: ``,
+    pictures: []
   };
 
-  const newType = type.toString();
+  const destinationsList = destinations;
 
-  return offers[newType];
-};
+  const currentDestination = Object
+    .values(destinationsList)
+    .filter((item) => item.name === type);
 
-export const generateDescription = () => {
-  const text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-  Cras aliquet varius magna, non porta ligula feugiat eget. 
-  Fusce tristique felis at fermentum pharetra. 
-  Aliquam id orci ut lectus varius viverra. 
-  Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. 
-  Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. 
-  Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. 
-  Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. 
-  Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
-
-  const descriptions = text.split(`. `);
-
-  return `${descriptions[getRandomInteger(0, descriptions.length - 1)]}.`;
+  return currentDestination[0] || blank;
 };
 
 export const getUniqueDates = (waypoints) => {
@@ -225,7 +116,7 @@ export const getCities = (waypoints) => {
   .slice()
   .map((waypoint) => {
     return {
-      city: waypoint.city,
+      city: waypoint.destination.name,
       startDate: waypoint.startDate
     };
   })
@@ -263,17 +154,35 @@ export const getCitiesForInfo = (waypoints) => {
   return citiesForInfo;
 };
 
-export const getFinalAmount = (waypoints) => {
-  let finalAmount = 0;
-
-  waypoints.forEach((waypoint) => {
-    finalAmount += waypoint.price;
-  });
-
-  return finalAmount;
+const getAmountEnabledOffers = (waypoints) => {
+  return Object
+    .values(waypoints)
+    .filter((waypoint) => waypoint.offers.length !== 0)
+    .map((waypoint) => waypoint.offers)
+    .reduce((total, offers) => {
+      for (const offer of offers) {
+        if (offer.isEnabled) {
+          total += offer.price;
+        }
+      }
+      return total;
+    }, 0);
 };
 
-export const NewWaypointMode = {
-  OPEN: `OPEN`,
-  CLOSE: `CLOSE`
+const getAmountAllWaypoints = (waypoints) => {
+  return Object
+    .values(waypoints)
+    .reduce((total, value) => {
+      total += value.price;
+      return total;
+    }, 0);
+};
+
+
+export const getFinalAmount = (waypoints) => {
+  const amountAllWaypoints = getAmountAllWaypoints(waypoints);
+  const amountEnabledOffers = getAmountEnabledOffers(waypoints);
+  const finalAmount = amountAllWaypoints + amountEnabledOffers;
+
+  return finalAmount;
 };

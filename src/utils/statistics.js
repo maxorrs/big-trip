@@ -2,16 +2,16 @@ import {types} from '../utils/waypoint.js';
 import moment from 'moment';
 
 const WaypointType = {
-  TAXI: `Taxi`,
-  BUS: `Bus`,
-  TRAIN: `Train`,
-  SHIP: `Ship`,
-  TRANSPORT: `Transport`,
-  DRIVE: `Drive`,
-  FLIGHT: `Flight`,
-  CHECK: `Check`,
-  SIGHTSEEING: `Sightseeing`,
-  RESTAURANT: `Restaurant`
+  TAXI: `taxi`,
+  BUS: `bus`,
+  TRAIN: `train`,
+  SHIP: `ship`,
+  TRANSPORT: `transport`,
+  DRIVE: `drive`,
+  FLIGHT: `flight`,
+  CHECK: `check`,
+  SIGHTSEEING: `sightseeing`,
+  RESTAURANT: `restaurant`
 };
 
 const LabelStat = {
@@ -27,79 +27,48 @@ const LabelStat = {
   [WaypointType.RESTAURANT]: `🍽 EAT`
 };
 
+const getUniqueStats = (newArr, item) => {
+  const itemValue = item.value ? item.value : 1;
+  const itemType = item.type === `check-in` ? `check` : item.type;
+
+  if (LabelStat[itemType] in newArr) {
+    newArr[LabelStat[itemType]] += itemValue;
+  } else {
+    newArr[LabelStat[itemType]] = itemValue;
+  }
+
+  return newArr;
+};
+
 export const getStatsForMoney = (waypoints) => {
-  let bank = {};
-  Object
+  const stats = Object
     .values(waypoints)
     .map((item) => {
-      const typeWaypoint = item.type === `Check-in` ? `Check` : item.type;
       return {
-        type: typeWaypoint,
-        price: item.price
+        type: item.type,
+        value: item.price
       };
     })
-    .reduce((_, value) => {
-      if ([LabelStat[value.type]] in bank) {
-        bank[LabelStat[value.type]] += value.price;
-      } else {
-        bank[LabelStat[value.type]] = value.price;
-      }
-    }, 0);
+    .reduce(getUniqueStats, []);
 
-  let sortable = [];
-
-  for (const type in bank) {
-    if (bank.hasOwnProperty(type)) {
-      sortable.push([type, bank[type]]);
-    }
-  }
-  sortable.sort((a, b) => b[1] - a[1]);
-
-  let labels = [];
-  let prices = [];
-  sortable.forEach((value) => labels.push(value[0]));
-  sortable.forEach((value) => prices.push(value[1]));
-
-  return {
-    labelsStat: labels,
-    valuesStat: prices
-  };
+  return sortStats(stats);
 };
 
 export const getStatsForTransport = (waypoints) => {
-  const typesActivity = types.activity;
-  let bank = {};
-  Object
+  const typesOfTransport = types.transport;
+  const stats = Object
     .values(waypoints)
+    .filter((item) => {
+      return typesOfTransport.some((type) => type === item.type);
+    })
     .map((item) => {
-      const typeWaypoint = item.type === `Check-in` ? `Check` : item.type;
-      for (const type of typesActivity) {
-        if (typeWaypoint === type && LabelStat[typeWaypoint] in bank) {
-          bank[LabelStat[typeWaypoint]] += 1;
-        } else if (typeWaypoint === type) {
-          bank[LabelStat[typeWaypoint]] = 1;
-        }
-      }
-    });
+      return {
+        type: item.type
+      };
+    })
+    .reduce(getUniqueStats, []);
 
-  let sortable = [];
-
-  for (const type in bank) {
-    if (bank.hasOwnProperty(type)) {
-      sortable.push([type, bank[type]]);
-    }
-  }
-  sortable.sort((a, b) => b[1] - a[1]);
-
-  let labels = [];
-  let count = [];
-  sortable.forEach((value) => labels.push(value[0]));
-  sortable.forEach((value) => count.push(value[1]));
-
-  return {
-    labelsStat: labels,
-    valuesStat: count
-  };
+  return sortStats(stats);
 };
 
 const getDuration = (waypoint) => {
@@ -111,40 +80,39 @@ const getDuration = (waypoint) => {
 };
 
 export const getStatsForTimeSpent = (waypoints) => {
-  let bank = {};
-  Object
+  const stats = Object
     .values(waypoints)
     .map((item) => {
-      const typeWaypoint = item.type === `Check-in` ? `Check` : item.type;
       return {
-        type: typeWaypoint,
-        duration: getDuration(item)
+        type: item.type,
+        value: getDuration(item)
       };
     })
-    .reduce((_, item) => {
-      if (LabelStat[item.type] in bank) {
-        bank[LabelStat[item.type]] += item.duration;
-      } else {
-        bank[LabelStat[item.type]] = item.duration;
-      }
-    }, 0);
+    .reduce(getUniqueStats, []);
 
-  let sortable = [];
+  return sortStats(stats);
+};
 
-  for (const type in bank) {
-    if (bank.hasOwnProperty(type)) {
-      sortable.push([type, bank[type]]);
-    }
-  }
-  sortable.sort((a, b) => b[1] - a[1]);
+const sortStats = (unsorteStats) => {
+  const sortable = Object
+    .entries(unsorteStats)
+    .reduce((newArr, item) => {
+      newArr.push(item);
 
-  let labels = [];
-  let diff = [];
-  sortable.forEach((value) => labels.push(value[0]));
-  sortable.forEach((value) => diff.push(value[1]));
+      return newArr;
+    }, [])
+    .sort((a, b) => b[1] - a[1]);
+
+  const labels = Object
+    .values(sortable)
+    .map((item) => item[0]);
+
+  const values = Object
+    .values(sortable)
+    .map((item) => item[1]);
 
   return {
-    labelsStat: labels,
-    valuesStat: diff
+    labelsData: labels,
+    valuesData: values
   };
 };
