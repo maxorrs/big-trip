@@ -8,15 +8,15 @@ import flatpickr from 'flatpickr';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 
-const createControlsTemplate = (isFavorite, isNew) => {
+const createControlsTemplate = (isFavorite, isNew, isDisabled, isSaving, isDeleting) => {
   return (
     `${isNew
       ?
-      `<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+      `<button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? `disabled` : ``}>${isSaving ? `Saving...` : `Save`}</button>
       <button class="event__reset-btn" type="reset">Cancel</button>`
       :
-      `<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      `<button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? `disabled` : ``}>${isSaving ? `Saving...` : `Save`}</button>
+      <button class="event__reset-btn" type="reset">${isDeleting ? `Deleting...` : `Delete`}</button>
 
       <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? `checked` : ``}>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -39,7 +39,7 @@ const createTypeActivityTemplate = (data) => {
     .map((activity) => {
       return (
         `<div class="event__type-item">
-          <input id="event-type-${activity}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activity}" ${data.type.toLowerCase() === activity ? `checked` : ``}>
+          <input id="event-type-${activity}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activity}" ${data.type.toLowerCase() === activity ? `checked` : ``} ${data.isDisabled ? `disabled` : ``}>
           <label class="event__type-label  event__type-label--${activity}" for="event-type-${activity}-1">${ucFirst(activity)}</label>
         </div>`
       );
@@ -54,7 +54,7 @@ const createTypeTransferTemplate = (data) => {
       const type = transfer === `check` ? `check-in` : transfer;
       return (
         `<div class="event__type-item">
-          <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${data.type === transfer ? `checked` : ``}>
+          <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${data.type === transfer ? `checked` : ``} ${data.isDisabled ? `disabled` : ``}>
           <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${ucFirst(transfer)}</label>
         </div>`
       );
@@ -70,7 +70,7 @@ const createOffers = (data) => {
         const nameForAttr = getConcatNameOffers(item.title);
         return (
           `<div class="event__offer-selector">
-            <input class="event__offer-checkbox visually-hidden" id="${nameForAttr}-1" type="checkbox" name="${item.title}" ${item.isEnabled ? `checked` : ``}>
+            <input class="event__offer-checkbox visually-hidden" id="${nameForAttr}-1" type="checkbox" name="${item.title}" ${item.isEnabled ? `checked` : ``} disaled=${item.isDisabled ? `true` : `false`}>
               <label class="event__offer-label" for="${nameForAttr}-1">
                 <span class="event__offer-title">${item.title}</span>
                   &plus;
@@ -127,7 +127,7 @@ const createOffersTemplate = (data = {}) => {
 };
 
 const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDatalist = []) => {
-  const {isFavorite, price, startDate, endDate, type} = data;
+  const {isFavorite, price, startDate, endDate, type, isDisabled, isSaving, isDeleting} = data;
   const city = data.destination.name;
 
   const startTimeValue = formatDateForEditComponent(startDate);
@@ -142,7 +142,9 @@ const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDat
   const offertsTemplate = createOffersTemplate(data);
   const typeActivityTemplate = createTypeActivityTemplate(data);
   const typeTransferTemplate = createTypeTransferTemplate(data);
-  const controlsTemplate = createControlsTemplate(isFavorite, isNewWaypoint);
+  const controlsTemplate = createControlsTemplate(isFavorite, isNewWaypoint, isDisabled, isSaving, isDeleting);
+
+  const disabled = isDisabled ? `disabled` : ``;
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -152,7 +154,7 @@ const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDat
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${typeForAttr}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${disabled}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -171,7 +173,7 @@ const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDat
         <label class="event__label  event__type-output" for="event-destination-1">
           ${typeText}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city}" list="destination-list-1" placeholder="select destination..." required>
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city}" list="destination-list-1" placeholder="select destination..." required ${disabled}>
         <datalist id="destination-list-1">
           ${datalist}
         </datalist>
@@ -181,12 +183,12 @@ const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDat
         <label class="visually-hidden" for="event-start-time-1">
           From
         </label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTimeValue}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTimeValue}" ${disabled}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">
           To
         </label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTimeValue}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTimeValue}" ${disabled}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -194,7 +196,7 @@ const createEventTemplate = (data = getBlankWaypoint(), isNewWaypoint, citiesDat
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}" required>
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}" required ${disabled}>
       </div>
 
       ${controlsTemplate}
@@ -440,6 +442,8 @@ export default class EditEvent extends SmartView {
   }
 
   _offerChangeHandler(evt) {
+    evt.preventDefault();
+
     let nameInput;
 
     if (evt.target.tagName === `LABEL`) {

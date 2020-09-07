@@ -1,14 +1,22 @@
-import WaypointsModel from './model/waypoints.js';
+import Adapter from './utils/adapter.js';
 
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 const SuccessHTTPStatusRange = {
   MIN: 200,
   MAX: 299
 };
+
+const UrlApi = {
+  POINTS: `points`,
+  OFFERS: `offers`,
+  DESTINATIONS: `destinations`
+}
 
 export default class Api {
   constructor(endPoint, authorization) {
@@ -17,30 +25,48 @@ export default class Api {
   }
 
   getWaypoints() {
-    return this._load({url: `points`})
+    return this._load({url: UrlApi.POINTS})
       .then(Api.toJSON)
-      .then((waypoints) => waypoints.map(WaypointsModel.adaptToClient));
+      .then((waypoints) => waypoints.map(Adapter.adaptToClient));
   }
 
   getOffers() {
-    return this._load({url: `offers`})
+    return this._load({url: UrlApi.OFFERS})
       .then(Api.toJSON)
   }
   
   getDestinations() {
-    return this._load({url: `destinations`})
+    return this._load({url: UrlApi.DESTINATIONS})
       .then(Api.toJSON)
   }
 
   updateWaypoint(waypoint) {
     return this._load({
-      url: `points/${waypoint.id}`,
+      url: `${UrlApi.POINTS}/${waypoint.id}`,
       method: Method.PUT,
-      body: JSON.stringify(WaypointsModel.adaptToServer(waypoint)),
+      body: JSON.stringify(Adapter.adaptToServer(waypoint)),
       headers: new Headers({"Content-Type": `application/json`})
     })
       .then(Api.toJSON)
-      .then(WaypointsModel.adaptToClient);
+      .then(Adapter.adaptToClient);
+  }
+
+  addWaypoint(waypoint) {
+    return this._load({
+      url: UrlApi.POINTS,
+      method: Method.POST,
+      body: JSON.stringify(Adapter.adaptToServer(waypoint)),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON)
+      .then(Adapter.adaptToClient);
+  }
+
+  deleteWaypoint(waypoint) {
+    return this._load({
+      url: `${UrlApi.POINTS}/${waypoint.id}`,
+      method: Method.DELETE
+    });
   }
 
   _load({
