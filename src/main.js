@@ -7,13 +7,14 @@ import TripPresenter from './presenter/trip.js';
 import FilterPresenter from './presenter/filter.js'
 import WaypointsModel from './model/waypoints.js';
 import ExtraModel from './model/extra.js';
-
 import FilterModel from './model/filter.js';
 import StatisticsView from './view/statistics.js';
-import Api from './api.js';
+import Api from './api/index.js';
+import Store from './api/store.js';
+import Provider from './api/provider.js';
 
 const ApiConfig = {
-  AUTHORIZATION: `Basics s90dugjni2o3f`,
+  AUTHORIZATION: `Basics iuaosfa12rF`,
   END_POINT: `https://12.ecmascript.pages.academy/big-trip`
 };
 
@@ -21,6 +22,8 @@ const sitePageBody = document.querySelector(`.page-body`);
 const sitePageBodyContainer = document.querySelector(`.page-body__page-main .page-body__container`);
   
 const api = new Api(ApiConfig.END_POINT, ApiConfig.AUTHORIZATION);
+const store = new Store(window.localStorage);
+const apiWithProvider = new Provider(api, store);
 
 const waypointsModel = new WaypointsModel();
 const extraModel = new ExtraModel();
@@ -72,7 +75,7 @@ const handleSiteMenuClick = (menuItem) => {
 }
 
 const filterPresenter = new FilterPresenter(sitePageBody, filterModel, waypointsModel);
-const tripPresenter = new TripPresenter(sitePageBody, waypointsModel, filterModel, api, extraModel);
+const tripPresenter = new TripPresenter(sitePageBody, waypointsModel, filterModel, apiWithProvider, extraModel);
 const infoPresenter = new InfoPresenter(sitePageBody, waypointsModel, tripPresenter, handleSiteMenuClick);
 
 infoPresenter.init();
@@ -80,18 +83,34 @@ filterPresenter.init();
 tripPresenter.init();
 
 Promise.all([
-  api.getOffers(),
-  api.getDestinations(),
-  api.getWaypoints()
+  apiWithProvider.getOffers(),
+  apiWithProvider.getDestinations(),
+  apiWithProvider.getWaypoints()
 ])
   .then((response) => {
     extraModel.setOffers(response[0]);
     extraModel.setDestinations(response[1]);
     waypointsModel.setWaypoints(UpdateType.INIT, response[2]);
   })
-  .catch(() => {
-    waypointsModel.setWaypoints(UpdateType.ERROR, []);
-  });
+  // .catch(() => {
+  //   waypointsModel.setWaypoints(UpdateType.ERROR, []);
+  // });
 
-  
+  window.addEventListener(`load`, () => {
+    navigator.serviceWorker.register(`/sw.js`)
+      .then(() => {
+        console.log(`ServiceWorker available`); // eslint-disable-line
+      }).catch(() => {
+        console.error(`ServiceWorker isn't available`); // eslint-disable-line
+      });
+  }
+);
 
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(` [offline]`, ``);
+  apiWithProvider.sync();
+});
+
+window.addEventListener(`offline`, () => {
+  document.title += ` [offline]`;
+});
