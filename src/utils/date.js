@@ -54,3 +54,7 @@ export const isDatesEqual = (firstDate, secondDate) => {
 export const isFutureOrPast = (date, time) => {
   return time === Tense.FUTURE ? moment(date).isAfter() : moment(date).isBefore();
 };
+
+export const isInvalidDateRange = (data) => {
+  return moment(data.startDate).isAfter(data.endDate);
+};

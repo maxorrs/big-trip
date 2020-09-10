@@ -2,7 +2,6 @@ const path = require('path');
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const MomentTimezoneDataPlugin = require('moment-timezone-data-webpack-plugin');
 
-
 module.exports = {
   mode: 'development',
   entry: './src/main.js',

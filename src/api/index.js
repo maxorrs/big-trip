@@ -1,4 +1,4 @@
-import Adapter from './utils/adapter.js';
+import Adapter from '../utils/adapter.js';
 
 const Method = {
   GET: `GET`,
@@ -15,8 +15,9 @@ const SuccessHTTPStatusRange = {
 const UrlApi = {
   POINTS: `points`,
   OFFERS: `offers`,
-  DESTINATIONS: `destinations`
-}
+  DESTINATIONS: `destinations`,
+  SYNC: `sync`
+};
 
 export default class Api {
   constructor(endPoint, authorization) {
@@ -32,12 +33,12 @@ export default class Api {
 
   getOffers() {
     return this._load({url: UrlApi.OFFERS})
-      .then(Api.toJSON)
+      .then(Api.toJSON);
   }
-  
+
   getDestinations() {
     return this._load({url: UrlApi.DESTINATIONS})
-      .then(Api.toJSON)
+      .then(Api.toJSON);
   }
 
   updateWaypoint(waypoint) {
@@ -67,6 +68,16 @@ export default class Api {
       url: `${UrlApi.POINTS}/${waypoint.id}`,
       method: Method.DELETE
     });
+  }
+
+  sync(data) {
+    return this._load({
+      url: `${UrlApi.POINTS}/${UrlApi.SYNC}`,
+      method: Method.POST,
+      body: JSON.stringify(data),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON);
   }
 
   _load({

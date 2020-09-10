@@ -1,7 +1,7 @@
 
 import SmartView from './smart.js';
-import {createPhoto, getDatalist, getBlankWaypoint, updateOffers, getConcatNameOffers} from '../utils/event.js';
-import {formatDateForEditComponent} from '../utils/date.js';
+import {getDatalist, getBlankWaypoint, updateOffers, getConcatNameOffers, createPhotosTemplate} from '../utils/event.js';
+import {formatDateForEditComponent, isInvalidDateRange} from '../utils/date.js';
 import {types, getType, getOffers, getDestinationInfo} from '../utils/waypoint.js';
 import {ucFirst} from '../utils/common.js';
 import flatpickr from 'flatpickr';
@@ -88,7 +88,7 @@ const createOffers = (data) => {
 
 const createDestinationInfoTemplate = (data = {}) => {
   const {pictures, description} = data.destination;
-  const photosTemplate = createPhoto(pictures);
+  const photosTemplate = createPhotosTemplate(pictures);
 
   if (description && pictures) {
     return (
@@ -324,6 +324,17 @@ export default class EditEvent extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
+
+    if (isInvalidDateRange(this._data)) {
+      this._data = Object.assign(
+          {},
+          this._data,
+          {
+            endDate: this._data.startDate
+          }
+      );
+    }
+
     this._callback.submit(this._data);
   }
 

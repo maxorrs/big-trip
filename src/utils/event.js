@@ -1,16 +1,17 @@
 const DEFAULT_TYPE = `taxi`;
 
-export const createPhoto = (photos) => {
+export const createPhotosTemplate = (photos) => {
   if (!photos) {
     return ``;
   }
 
-  let result = ``;
-  for (const photo of photos) {
-    result += `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`;
-  }
+  const photosTemplate = photos
+    .reduce((template, photo) => {
+      template += `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`;
+      return template;
+    }, ``);
 
-  return result;
+  return photosTemplate;
 };
 
 export const getUniqueCities = (destination) => {
@@ -33,29 +34,18 @@ export const getDatalist = (uniqueCities) => {
 };
 
 export const getSumPrice = (item) => {
-  const result = Object
-  .values(item.offers)
-  .filter((it) => {
-    return it.isEnabled === true;
-  }).map((it) => {
-    return it.price;
-  })
-  .reduce((total, value) => {
-    return total + value;
-  }, 0);
-
-  return result;
+  return Object
+    .values(item.offers)
+    .filter((it) => it.isEnabled === true)
+    .map((it) => it.price)
+    .reduce((total, value) => total + value, 0);
 };
 
 export const getDefaultOffers = (offers) => {
-  const defaultOffer = Object
+  return Object
     .values(offers)
     .filter((offer) => offer.type === DEFAULT_TYPE.toLowerCase())
-    .map((item) => {
-      return item.offers;
-    });
-
-  return defaultOffer;
+    .map((item) => item.offers);
 };
 
 export const getBlankWaypoint = (offers) => {
