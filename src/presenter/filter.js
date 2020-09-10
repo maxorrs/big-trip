@@ -9,6 +9,7 @@ export default class Filter {
     this._filterModel = filterModel;
     this._waypointsModel = waypointsModel;
     this._currentFilter = null;
+    this._disableFilters = false;
 
     this._filterComponent = null;
 
@@ -22,9 +23,9 @@ export default class Filter {
   init() {
     this._currentFilter = this._filterModel.getFilter();
     const filters = this._getFilters();
-    const prevFilterComponent = this._filterComponent;
 
-    this._filterComponent = new FilterView(filters, this._currentFilter);
+    const prevFilterComponent = this._filterComponent;
+    this._filterComponent = new FilterView(filters, this._currentFilter, this._disableFilters);
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
@@ -32,8 +33,27 @@ export default class Filter {
       return;
     }
 
+    this._resetFilterIfEmpty(filters);
+
     replace(this._filterComponent, prevFilterComponent);
     remove(prevFilterComponent);
+  }
+
+  disableFilters() {
+    this._disableFilters = true;
+  }
+
+  enableFilters() {
+    this._disableFilters = false;
+    this.init();
+  }
+
+  _resetFilterIfEmpty(filters) {
+    const currentFilterData = Object.values(filters).filter((filt) => filt.type === this._currentFilter);
+
+    if (currentFilterData[0].count === 0 && currentFilterData[0].type !== FilterType.EVERYTHING) {
+      this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    }
   }
 
   _handleModelEvent() {

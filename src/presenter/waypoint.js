@@ -2,18 +2,8 @@ import EditEventView from '../view/edit-event.js';
 import WaypointView from '../view/waypoint.js';
 import {formateDateForSelector} from '../utils/date.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
+import {State, WaypointMode} from '../utils/waypoint.js';
 import {UserAction, UpdateType} from '../consts.js';
-
-const Mode = {
-  DEFAULT: `DEFAULT`,
-  EDITING: `EDITING`
-};
-
-export const State = {
-  SAVING: `SAVING`,
-  DELETING: `DELETING`,
-  ABORTING: `ABORTING`
-};
 
 export default class Waypoint {
   constructor(container, changeData, changeMode, uniqueCitiesDatalist, offers, destinations, newWaypointPresenter) {
@@ -22,7 +12,7 @@ export default class Waypoint {
     this._waypointEditComponent = null;
     this._changeData = changeData;
     this._changeMode = changeMode;
-    this._mode = Mode.DEFAULT;
+    this._mode = WaypointMode.DEFAULT;
     this._uniqueCitiesDatalist = uniqueCitiesDatalist;
     this._offers = offers;
     this._destinations = destinations;
@@ -63,12 +53,12 @@ export default class Waypoint {
       return;
     }
 
-    if (this._mode === Mode.EDITING) {
+    if (this._mode === WaypointMode.EDITING) {
       replace(this._waypointEditComponent, prevWaypointEditComponent);
-      this._mode = Mode.DEFAULT;
+      this._mode = WaypointMode.DEFAULT;
     }
 
-    if (this._mode === Mode.DEFAULT) {
+    if (this._mode === WaypointMode.DEFAULT) {
       replace(this._waypointComponent, prevWaypointComponent);
     }
 
@@ -82,7 +72,7 @@ export default class Waypoint {
   }
 
   resetView() {
-    if (this._mode !== Mode.DEFAULT) {
+    if (this._mode !== WaypointMode.DEFAULT) {
       this._replaceFormToCard();
     }
   }
@@ -120,14 +110,14 @@ export default class Waypoint {
     replace(this._waypointEditComponent, this._waypointComponent);
     document.addEventListener(`keydown`, this._onEscKeyDown);
     this._changeMode();
-    this._mode = Mode.EDITING;
+    this._mode = WaypointMode.EDITING;
     this._newWaypointPresenter.destroy();
   }
 
   _replaceFormToCard() {
     replace(this._waypointComponent, this._waypointEditComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
-    this._mode = Mode.DEFAULT;
+    this._mode = WaypointMode.DEFAULT;
   }
 
   _onEscKeyDown(evt) {

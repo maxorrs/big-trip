@@ -14,7 +14,7 @@ import Store from './api/store.js';
 import Provider from './api/provider.js';
 
 const ApiConfig = {
-  AUTHORIZATION: `Basics iuaosfa12rF`,
+  AUTHORIZATION: `Basics 23FSklssfssmASF`,
   END_POINT: `https://12.ecmascript.pages.academy/big-trip`
 };
 
@@ -35,23 +35,26 @@ let statisticsComponent = null;
 const handleSiteMenuClick = (menuItem) => {
   switch(menuItem) {
     case MenuItem.TABLE:
+      filterPresenter.enableFilters();
       infoPresenter.destroyFormNewWaypoint();
       tripPresenter.destroy();
       tripPresenter.init();
       infoPresenter.setMenuItemTable();
+
       if (statisticsComponent !== null) {
         remove(statisticsComponent);
         statisticsComponent = null;
       }
-      
       break;
     case MenuItem.STATS:
       const waypointCounts = waypointsModel.getWaypoints().length;
       if (waypointCounts > 0) {
-        infoPresenter.destroyFormNewWaypoint();
+        filterPresenter.disableFilters();
         filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-        tripPresenter.destroy();
+        infoPresenter.destroyFormNewWaypoint();
         infoPresenter.setMenuItemStats();
+        tripPresenter.destroy();
+
         if (statisticsComponent === null) {
           statisticsComponent = new StatisticsView(waypointsModel.getWaypoints());
           render(sitePageBodyContainer, RenderPosition.BEFOREEND, statisticsComponent);
@@ -60,6 +63,7 @@ const handleSiteMenuClick = (menuItem) => {
       
       break;
     case MenuItem.ADD_WAYPOINT:
+      filterPresenter.enableFilters();
       tripPresenter.destroy();
       filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
       tripPresenter.init();
@@ -92,9 +96,9 @@ Promise.all([
     extraModel.setDestinations(response[1]);
     waypointsModel.setWaypoints(UpdateType.INIT, response[2]);
   })
-  // .catch(() => {
-  //   waypointsModel.setWaypoints(UpdateType.ERROR, []);
-  // });
+  .catch(() => {
+    waypointsModel.setWaypoints(UpdateType.ERROR, []);
+  });
 
   window.addEventListener(`load`, () => {
     navigator.serviceWorker.register(`/sw.js`)
