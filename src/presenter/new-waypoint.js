@@ -2,6 +2,7 @@ import WaypointEditView from '../view/edit-event.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import {UserAction, UpdateType} from '../consts.js';
 import {getBlankWaypoint} from '../utils/event.js';
+import {WaypointMode} from '../utils/waypoint.js';
 
 export default class NewWaypoint {
   constructor(tripMainContainer, changeData) {
@@ -9,6 +10,7 @@ export default class NewWaypoint {
     this._changeData = changeData;
 
     this._destroyCallback = null;
+    this._newWaypointState = null;
 
     this._waypointEditView = null;
 
@@ -17,7 +19,10 @@ export default class NewWaypoint {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(callback, uniqueCitiesDatalist, offers, destinations) {
+  init(callback, uniqueCitiesDatalist, offers, destinations, newWaypointState) {
+    this._newWaypointState = newWaypointState;
+    this._newWaypointState(WaypointMode.EDITING);
+
     this._destroyCallback = callback;
     this._destroyCallback();
 
@@ -59,6 +64,7 @@ export default class NewWaypoint {
     remove(this._waypointEditView);
     this._waypointEditView = null;
     this._destroyCallback = null;
+    this._newWaypointState(WaypointMode.DEFAULT);
 
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }

@@ -1,6 +1,5 @@
 import TripInfoView from '../view/trip-info.js';
 import TripTabsView from '../view/trip-tabs.js';
-import TripFiltersView from '../view/trip-filters.js';
 import TripSortView from '../view/trip-sort.js';
 import DaysView from '../view/days.js';
 import OneDayView from '../view/one-day.js';
@@ -8,9 +7,9 @@ import NoWaypointsView from '../view/no-waypoints.js';
 import LoadingView from '../view/loading.js';
 import ErrorView from '../view/error.js';
 import NewWaypointPresenter from './new-waypoint.js';
-import WaypointPresenter, {State as WaypointPresenterViewState} from './waypoint.js';
+import WaypointPresenter from './waypoint.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
-import {sortTime, sortPrice, getUniqueDates} from '../utils/waypoint.js';
+import {sortTime, sortPrice, getUniqueDates, State as WaypointPresenterViewState, WaypointMode} from '../utils/waypoint.js';
 import {SortType, UserAction, UpdateType} from '../consts.js';
 import {filter} from '../utils/filter.js';
 import {getUniqueCities, getBlankWaypoint} from '../utils/event.js';
@@ -32,14 +31,12 @@ export default class Trip {
     this._destinations = null;
 
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
-
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._newWaypointState = this._newWaypointState.bind(this);
 
     this._tripTabsComponent = new TripTabsView();
-    this._tripFiltersComponent = new TripFiltersView();
     this._tripDaysComponent = new DaysView();
     this._noWaypointsComponent = new NoWaypointsView();
     this._loadingComponent = new LoadingView();
@@ -101,8 +98,7 @@ export default class Trip {
   }
 
   createFormNewWaypoint(callback) {
-    remove(this._noWaypointsComponent);
-    this._newWaypointPresenter.init(callback, this._uniqueCitiesDatalist, this._offers, this._destinations);
+    this._newWaypointPresenter.init(callback, this._uniqueCitiesDatalist, this._offers, this._destinations, this._newWaypointState);
   }
 
   destroyFormNewWaypoint() {
@@ -160,6 +156,19 @@ export default class Trip {
 
     if (this._tripContainer.querySelector(`.page-body__container--withoutAfter`)) {
       this._tripContainer.querySelector(`.page-body__container--withoutAfter`).className = `page-body__container`;
+    }
+  }
+
+  _newWaypointState(state) {
+    if (this._waypointsCount === 0) {
+      switch (state) {
+        case WaypointMode.EDITING:
+          remove(this._noWaypointsComponent);
+          break;
+        case WaypointMode.DEFAULT:
+          this._renderNoWaypoints();
+          break;
+      }
     }
   }
 

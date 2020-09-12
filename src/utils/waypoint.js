@@ -3,6 +3,17 @@ import moment from 'moment';
 
 const MAX_COUNT_CITY_INFO = 3;
 
+export const WaypointMode = {
+  DEFAULT: `DEFAULT`,
+  EDITING: `EDITING`
+};
+
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`,
+  ABORTING: `ABORTING`
+};
+
 export const getSumWaypoint = (waypoint) => {
   const amount = Object
     .values(waypoint.offers)

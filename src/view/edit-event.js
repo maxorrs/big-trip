@@ -392,7 +392,6 @@ export default class EditEvent extends SmartView {
     for (const offer of offers) {
       offer.addEventListener(`click`, this._offerChangeHandler);
     }
-
   }
 
   getTemplate() {
@@ -430,7 +429,7 @@ export default class EditEvent extends SmartView {
 
     this.updateData({
       type: evt.target.value,
-      offers: getOffers(this._offers, evt.target.value),
+      offers: getOffers(this._offers, evt.target.value)
     });
   }
 
@@ -454,6 +453,10 @@ export default class EditEvent extends SmartView {
 
   _offerChangeHandler(evt) {
     evt.preventDefault();
+
+    if (this._data.isDisabled) {
+      return;
+    }
 
     let nameInput;
 

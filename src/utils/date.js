@@ -58,3 +58,32 @@ export const isFutureOrPast = (date, time) => {
 export const isInvalidDateRange = (data) => {
   return moment(data.startDate).isAfter(data.endDate);
 };
+
+export const getMinAndMaxDate = (dates) => {
+  if (dates.size) {
+    let datesArr = [];
+
+    for (const date of dates) {
+      datesArr.push(new Date(date).getTime());
+    }
+
+    const minDate = Math.min(...datesArr);
+    const maxDate = Math.max(...datesArr);
+
+    const minDay = moment(minDate).format(`DD`);
+    const maxDay = moment(maxDate).format(`DD`);
+
+    const minMonth = moment(minDate).format(`MMM`);
+    const maxMonth = moment(maxDate).format(`MMM`);
+
+    if (minMonth === maxMonth && minDay === maxDay) {
+      return `${minMonth} ${minDay}`;
+    } else if (minMonth === maxMonth) {
+      return `${minMonth} ${minDay} &nbsp;&mdash;&nbsp; ${maxDay}`;
+    }
+
+    return `${minMonth} ${minDay} &nbsp;&mdash;&nbsp; ${maxMonth} ${maxDay}`;
+  }
+
+  return ``;
+};

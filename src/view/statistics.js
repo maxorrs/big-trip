@@ -4,10 +4,11 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const BAR_HEIGHT = 55;
+const MIN_HEIGHT = 150;
 
 const renderMoneyChart = (moneyCtx, data) => {
   const {labelsData, valuesData} = getStatsForMoney(data);
-  moneyCtx.height = BAR_HEIGHT * labelsData.length;
+  moneyCtx.height = labelsData.length < 3 ? MIN_HEIGHT : BAR_HEIGHT * labelsData.length;
 
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
@@ -77,7 +78,7 @@ const renderMoneyChart = (moneyCtx, data) => {
 
 const renderTransportChart = (transportCtx, data) => {
   const {labelsData, valuesData} = getStatsForTransport(data);
-  transportCtx.height = BAR_HEIGHT * labelsData.length;
+  transportCtx.height = labelsData.length < 3 ? MIN_HEIGHT : BAR_HEIGHT * labelsData.length;
 
   return new Chart(transportCtx, {
     plugins: [ChartDataLabels],
@@ -147,7 +148,7 @@ const renderTransportChart = (transportCtx, data) => {
 
 const renderTimeSpentChart = (timeSpentCtx, data) => {
   const {labelsData, valuesData} = getStatsForTimeSpent(data);
-  timeSpentCtx.height = BAR_HEIGHT * labelsData.length;
+  timeSpentCtx.height = labelsData.length < 3 ? MIN_HEIGHT : BAR_HEIGHT * labelsData.length;
 
   return new Chart(timeSpentCtx, {
     plugins: [ChartDataLabels],

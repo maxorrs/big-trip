@@ -161,6 +161,7 @@ export default class Provider {
         }
         return item;
       });
+
     return updateWaypoints;
   }
 }
