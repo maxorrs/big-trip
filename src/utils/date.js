@@ -1,7 +1,7 @@
 import {Tense} from '../consts.js';
 import moment from 'moment-timezone';
 
-const momentTZ = (time) => {
+export const momentTZ = (time) => {
   return moment(time).tz(`America/Danmarkshavn`);
 };
 
@@ -10,7 +10,7 @@ export const formatDateForEditComponent = (date) => {
 };
 
 export const formatDateForDayContainer = (date) => {
-  return moment(date).format(`D MMM`).toUpperCase();
+  return momentTZ(date).format(`D MMM`).toUpperCase();
 };
 
 export const formatFullDateForAttr = (date) => {
@@ -61,7 +61,7 @@ export const isInvalidDateRange = (data) => {
 
 export const getMinAndMaxDate = (dates) => {
   if (dates.size) {
-    let datesArr = [];
+    const datesArr = [];
 
     for (const date of dates) {
       datesArr.push(new Date(date).getTime());

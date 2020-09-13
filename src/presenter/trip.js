@@ -112,7 +112,7 @@ export default class Trip {
   _renderDay(uniqueDates) {
     if (this._currenSortType === SortType.DEFAULT) {
       let i = 1;
-      for (let date of uniqueDates) {
+      for (const date of uniqueDates) {
         render(this._tripDaysComponent, RenderPosition.BEFOREEND, new OneDayView(i++, date));
       }
     } else {

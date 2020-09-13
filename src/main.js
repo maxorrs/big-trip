@@ -12,7 +12,7 @@ import Store from './api/store.js';
 import Provider from './api/provider.js';
 
 const ApiConfig = {
-  AUTHORIZATION: `Basics 23FSklssfssmASF`,
+  AUTHORIZATION: `Basics 9889asfhalkjlfLJ`,
   END_POINT: `https://12.ecmascript.pages.academy/big-trip`
 };
 
@@ -99,12 +99,7 @@ Promise.all([
   });
 
 window.addEventListener(`load`, () => {
-  navigator.serviceWorker.register(`/sw.js`)
-    .then(() => {
-      console.log(`ServiceWorker available`); // eslint-disable-line
-    }).catch(() => {
-      console.error(`ServiceWorker isn't available`); // eslint-disable-line
-    });
+  navigator.serviceWorker.register(`/sw.js`);
 });
 
 window.addEventListener(`online`, () => {

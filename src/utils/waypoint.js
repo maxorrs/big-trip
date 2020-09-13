@@ -1,5 +1,5 @@
 import {ucFirst} from './common.js';
-import moment from 'moment';
+import {momentTZ} from '../utils/date.js';
 
 const MAX_COUNT_CITY_INFO = 3;
 
@@ -117,7 +117,7 @@ export const getDestinationInfo = (destinations, type) => {
 export const getUniqueDates = (waypoints) => {
   return new Set(waypoints
     .slice()
-    .map((waypoint) => moment(waypoint.startDate).format(`YYYY-MM-DD`))
+    .map((waypoint) => momentTZ(waypoint.startDate).format(`YYYY-MM-DD`))
     .sort()
   );
 };
