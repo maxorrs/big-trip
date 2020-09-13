@@ -1,10 +1,8 @@
-'use strict';
-
 import {RenderPosition, render, remove} from './utils/render.js';
 import {MenuItem, UpdateType, FilterType} from './consts.js';
 import InfoPresenter from './presenter/info.js';
 import TripPresenter from './presenter/trip.js';
-import FilterPresenter from './presenter/filter.js'
+import FilterPresenter from './presenter/filter.js';
 import WaypointsModel from './model/waypoints.js';
 import ExtraModel from './model/extra.js';
 import FilterModel from './model/filter.js';
@@ -20,7 +18,7 @@ const ApiConfig = {
 
 const sitePageBody = document.querySelector(`.page-body`);
 const sitePageBodyContainer = document.querySelector(`.page-body__page-main .page-body__container`);
-  
+
 const api = new Api(ApiConfig.END_POINT, ApiConfig.AUTHORIZATION);
 const store = new Store(window.localStorage);
 const apiWithProvider = new Provider(api, store);
@@ -33,7 +31,7 @@ const filterModel = new FilterModel();
 let statisticsComponent = null;
 
 const handleSiteMenuClick = (menuItem) => {
-  switch(menuItem) {
+  switch (menuItem) {
     case MenuItem.TABLE:
       filterPresenter.enableFilters();
       infoPresenter.destroyFormNewWaypoint();
@@ -58,9 +56,9 @@ const handleSiteMenuClick = (menuItem) => {
         if (statisticsComponent === null) {
           statisticsComponent = new StatisticsView(waypointsModel.getWaypoints());
           render(sitePageBodyContainer, RenderPosition.BEFOREEND, statisticsComponent);
-        }  
+        }
       }
-      
+
       break;
     case MenuItem.ADD_WAYPOINT:
       filterPresenter.enableFilters();
@@ -76,7 +74,7 @@ const handleSiteMenuClick = (menuItem) => {
 
       break;
   }
-}
+};
 
 const filterPresenter = new FilterPresenter(sitePageBody, filterModel, waypointsModel);
 const tripPresenter = new TripPresenter(sitePageBody, waypointsModel, filterModel, apiWithProvider, extraModel);
@@ -100,15 +98,14 @@ Promise.all([
     waypointsModel.setWaypoints(UpdateType.ERROR, []);
   });
 
-  window.addEventListener(`load`, () => {
-    navigator.serviceWorker.register(`/sw.js`)
-      .then(() => {
-        console.log(`ServiceWorker available`); // eslint-disable-line
-      }).catch(() => {
-        console.error(`ServiceWorker isn't available`); // eslint-disable-line
-      });
-  }
-);
+window.addEventListener(`load`, () => {
+  navigator.serviceWorker.register(`/sw.js`)
+    .then(() => {
+      console.log(`ServiceWorker available`); // eslint-disable-line
+    }).catch(() => {
+      console.error(`ServiceWorker isn't available`); // eslint-disable-line
+    });
+});
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(` [offline]`, ``);
