@@ -1,7 +1,8 @@
-import {COUNT_OFFERS} from '../consts.js';
 import {getType} from '../utils/waypoint.js';
 import {formatTimeForWaypoint, getTimeRange, formatDateForWaypoint} from '../utils/date.js';
 import AbstractView from './abstract.js';
+
+const COUNT_OFFERS = 3;
 
 const createOffersDescriptionTemplate = (offers) => {
   return (Object

@@ -3,7 +3,7 @@ import SmartView from './smart.js';
 import {getDatalist, getBlankWaypoint, updateOffers, getConcatNameOffers, createPhotosTemplate} from '../utils/event.js';
 import {formatDateForEditComponent, isInvalidDateRange} from '../utils/date.js';
 import {types, getType, getOffers, getDestinationInfo} from '../utils/waypoint.js';
-import {ucFirst} from '../utils/common.js';
+import {capitalizeFirstLetter} from '../utils/common.js';
 import flatpickr from 'flatpickr';
 
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
@@ -40,7 +40,7 @@ const createTypeActivityTemplate = (data) => {
       return (
         `<div class="event__type-item">
           <input id="event-type-${activity}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activity}" ${data.type.toLowerCase() === activity ? `checked` : ``} ${data.isDisabled ? `disabled` : ``}>
-          <label class="event__type-label  event__type-label--${activity}" for="event-type-${activity}-1">${ucFirst(activity)}</label>
+          <label class="event__type-label  event__type-label--${activity}" for="event-type-${activity}-1">${capitalizeFirstLetter(activity)}</label>
         </div>`
       );
     })
@@ -55,7 +55,7 @@ const createTypeTransferTemplate = (data) => {
       return (
         `<div class="event__type-item">
           <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${data.type === transfer ? `checked` : ``} ${data.isDisabled ? `disabled` : ``}>
-          <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${ucFirst(transfer)}</label>
+          <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalizeFirstLetter(transfer)}</label>
         </div>`
       );
     })
@@ -276,9 +276,9 @@ export default class EditEvent extends SmartView {
       this._endDatepicker.destroy();
       this._endDatepicker = null;
     }
+
     const startDate = formatDateForEditComponent(this._data.startDate);
     const endDate = formatDateForEditComponent(this._data.endDate);
-
 
     this._endDatepicker = flatpickr(
         this.getElement().querySelector(`#event-end-time-1`),

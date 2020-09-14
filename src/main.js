@@ -12,7 +12,7 @@ import Store from './api/store.js';
 import Provider from './api/provider.js';
 
 const ApiConfig = {
-  AUTHORIZATION: `Basics 9889asfhalkjlfLJ`,
+  AUTHORIZATION: `Basics 9889asfhsalkjlfLJ`,
   END_POINT: `https://12.ecmascript.pages.academy/big-trip`
 };
 

@@ -1,32 +1,32 @@
 import {Tense} from '../consts.js';
 import moment from 'moment-timezone';
 
-export const momentTZ = (time) => {
+export const getMomemtWithTimeZone = (time) => {
   return moment(time).tz(`America/Danmarkshavn`);
 };
 
 export const formatDateForEditComponent = (date) => {
-  return momentTZ(date).format(`DD/MM/YY HH:mm`);
+  return getMomemtWithTimeZone(date).format(`DD/MM/YY HH:mm`);
 };
 
 export const formatDateForDayContainer = (date) => {
-  return momentTZ(date).format(`D MMM`).toUpperCase();
+  return getMomemtWithTimeZone(date).format(`D MMM`).toUpperCase();
 };
 
 export const formatFullDateForAttr = (date) => {
-  return momentTZ(date).format(`DD-MM-YY`);
+  return getMomemtWithTimeZone(date).format(`DD-MM-YY`);
 };
 
 export const formatTimeForWaypoint = (time) => {
-  return momentTZ(time).format(`HH:mm`);
+  return getMomemtWithTimeZone(time).format(`HH:mm`);
 };
 
 export const formatDateForWaypoint = (date) => {
-  return momentTZ(date).format(`DD-MM-YYTHH:mm`);
+  return getMomemtWithTimeZone(date).format(`DD-MM-YYTHH:mm`);
 };
 
 export const formateDateForSelector = (date) => {
-  return momentTZ(date).format(`YYYY-MM-DD`);
+  return getMomemtWithTimeZone(date).format(`YYYY-MM-DD`);
 };
 
 export const getTimeRange = (startDate, endDate) => {

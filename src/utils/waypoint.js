@@ -1,5 +1,5 @@
-import {ucFirst} from './common.js';
-import {momentTZ} from '../utils/date.js';
+import {capitalizeFirstLetter} from './common.js';
+import {getMomemtWithTimeZone} from '../utils/date.js';
 
 const MAX_COUNT_CITY_INFO = 3;
 
@@ -37,9 +37,9 @@ export const getType = (type) => {
     case `check`:
     case `sightseeing`:
     case `restaurant`:
-      return `${ucFirst(typeChange)} in`;
+      return `${capitalizeFirstLetter(typeChange)} in`;
     default:
-      return `${ucFirst(typeChange)} to`;
+      return `${capitalizeFirstLetter(typeChange)} to`;
   }
 };
 
@@ -117,7 +117,7 @@ export const getDestinationInfo = (destinations, type) => {
 export const getUniqueDates = (waypoints) => {
   return new Set(waypoints
     .slice()
-    .map((waypoint) => momentTZ(waypoint.startDate).format(`YYYY-MM-DD`))
+    .map((waypoint) => getMomemtWithTimeZone(waypoint.startDate).format(`YYYY-MM-DD`))
     .sort()
   );
 };

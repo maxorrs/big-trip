@@ -31,11 +31,6 @@ export default class TripAddButton extends AbstractView {
 
   setMenuItem() {
     const button = this.getElement();
-
-    if (button.disabled) {
-      button.disabled = false;
-    } else {
-      button.disabled = true;
-    }
+    button.disabled = !button.disabled;
   }
 }

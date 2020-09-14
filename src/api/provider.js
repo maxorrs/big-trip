@@ -19,8 +19,8 @@ const createStoreStructureWaypoints = (items) => {
   }, {});
 };
 
-const createStoreStructureExtra = (extra) => {
-  return extra.reduce((acc, current) => {
+const createStoreStructureExtra = (additions) => {
+  return additions.reduce((acc, current) => {
     return Object.assign({}, acc, {
       [current.type || current.name]: current
     });
